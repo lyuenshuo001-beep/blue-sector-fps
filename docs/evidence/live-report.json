@@ -1,0 +1,21 @@
+{
+  "url": "https://lyuenshuo001-beep.github.io/blue-sector-fps/",
+  "passed": [
+    "Public HTTPS page responds 200",
+    "PC trusted PLAY acquires pointer lock and fires",
+    "Public site mobile WeChat user-agent: trusted PLAY, ADS, FIRE",
+    "All live game resources same-origin",
+    "Production service worker activated",
+    "No uncaught runtime errors"
+  ],
+  "errors": [],
+  "requests": [
+    "https://lyuenshuo001-beep.github.io/blue-sector-fps/?test=1",
+    "https://lyuenshuo001-beep.github.io/blue-sector-fps/assets/index-BRYVzMf3.js",
+    "https://lyuenshuo001-beep.github.io/blue-sector-fps/assets/index-sbOOBnHL.css",
+    "https://lyuenshuo001-beep.github.io/blue-sector-fps/?test=1",
+    "https://lyuenshuo001-beep.github.io/blue-sector-fps/assets/index-BRYVzMf3.js",
+    "https://lyuenshuo001-beep.github.io/blue-sector-fps/assets/index-sbOOBnHL.css"
+  ],
+  "limitation": "WeChat user agent in desktop Chromium emulation, not physical WeChat or mainland carrier testing"
+}

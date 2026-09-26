@@ -1,5 +1,9 @@
 # BLUE SECTOR / 蓝域行动
 
+**立即游玩：[BLUE SECTOR](https://lyuenshuo001-beep.github.io/blue-sector-fps/)**
+
+源码仓库：[lyuenshuo001-beep/blue-sector-fps](https://github.com/lyuenshuo001-beep/blue-sector-fps)。GitHub Pages 已发布，阿里云部署暂未启用。手机横屏点击 PLAY；已完成公网浏览器检查，但大陆微信真机和运营商网络仍需实测，无法保证 GitHub Pages 在所有地区稳定。
+
 原创蓝色航天设施室内 FPS 生存游戏。TypeScript + Three.js + Vite，纯前端，无账号、无后端、无运行时第三方 CDN。所有模型、界面纹理和音效由代码生成，不使用任何商业游戏素材。地图 52 × 64 米，核心蓝室、两侧设施区与环形维护通道组成 CQB 空间。
 
 ## 快速运行
@@ -138,3 +142,4 @@ tests/         构建与浏览器验证
 
 
 补充机制测试：`node tests/mechanics.mjs`；WebKit 验证先 `npx playwright install webkit`，再 `npm run test:webkit`。
+

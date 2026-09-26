@@ -42,8 +42,9 @@ Playwright 的 WebKit 不等于 iPhone；Chromium 触摸模拟也不等于 Andro
 ## 需要账号和外部资源才能完成
 
 - [x] 用户的公开 GitHub 仓库 lyuenshuo001-beep/blue-sector-fps 已确认。
-- [ ] 源码推送等待 GitHub 网页登录授权。
-- [ ] GitHub Pages 工作流在实际仓库运行，实际 URL 验证。
+- [x] 源码已推送 main，仓库归用户 lyuenshuo001-beep 所有。
+- [x] GitHub Pages 工作流成功；https://lyuenshuo001-beep.github.io/blue-sector-fps/ 返回 200。
+- [x] 公网桌面真实点击 PLAY 后获取 Pointer Lock 并射击；微信 User-Agent 手机模拟下 PLAY / ADS / FIRE 正常；所有关键资源同源，PWA 激活，无未捕获错误。
 - [ ] 阿里云 OSS／域名／备案／证书已配置。
 - [ ] OSS 自动部署在真实账号执行成功。
 - [ ] 中国大陆真实移动网络、Wi-Fi、新加坡实际网址访问验收。
@@ -53,4 +54,5 @@ Playwright 的 WebKit 不等于 iPhone；Chromium 触摸模拟也不等于 Andro
 ## 已知第一版边界
 
 紧凑地图直跑用时约十余秒，1–2 分钟指完整遭遇与绕行而非直线跑图。机器人采用简化网格路径点；没有多人联网、破坏场景、翻越、真实骨骼动作或商业游戏资源。半自动武器需逐次按 FIRE。门框保持常开，玻璃为不可破坏阻挡。补给与机器人复用对象。HTTPS、首次联网和浏览器可用存储是离线缓存的前提。
+
 
