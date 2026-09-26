@@ -1,0 +1,43 @@
+{
+  "passed": [
+    "Start and renderer",
+    "Wave 1 spawns enemies",
+    "PC movement",
+    "Head hitbox, sniper headshot and kill",
+    "World geometry blocks hitscan",
+    "Reload ammo conservation",
+    "Jump and crouch",
+    "Enemy AI attacks and inflicts damage",
+    "Health and ammo pickups",
+    "Game over and restart reset",
+    "All spawn areas connected to player via waypoint graph",
+    "Three simultaneous real touch pointers: move + look + fire",
+    "Touch release clears fire",
+    "Portrait rotation overlay",
+    "No uncaught browser errors"
+  ],
+  "errors": [],
+  "requests": [
+    "http://localhost:5173/?test=1",
+    "http://localhost:5173/@vite/client",
+    "http://localhost:5173/src/main.ts?t=1790401746220",
+    "http://localhost:5173/node_modules/vite/dist/client/env.mjs",
+    "http://localhost:5173/src/style.css?t=1790401231177",
+    "http://localhost:5173/src/core/Game.ts?t=1790401746220",
+    "http://localhost:5173/node_modules/three/build/three.module.js",
+    "http://localhost:5173/src/core/Renderer.ts?t=1790401316947",
+    "http://localhost:5173/src/core/InputManager.ts",
+    "http://localhost:5173/src/player/Player.ts",
+    "http://localhost:5173/src/world/BlueRoomMap.ts?t=1790401315906",
+    "http://localhost:5173/src/weapons/WeaponManager.ts?t=1790401642924",
+    "http://localhost:5173/src/enemy/EnemyManager.ts?t=1790401316954",
+    "http://localhost:5173/src/audio/AudioManager.ts?t=1790401624565",
+    "http://localhost:5173/src/ui/HUD.ts",
+    "http://localhost:5173/src/world/Pickups.ts",
+    "http://localhost:5173/src/effects/HitEffect.ts",
+    "http://localhost:5173/node_modules/three/examples/jsm/utils/BufferGeometryUtils.js",
+    "http://localhost:5173/src/weapons/Weapon.ts",
+    "http://localhost:5173/src/enemy/Enemy.ts",
+    "http://localhost:5173/node_modules/three/build/three.core.js"
+  ]
+}

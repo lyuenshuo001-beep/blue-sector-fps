@@ -1,0 +1,30 @@
+{
+  "name": "blue-sector",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --configLoader native --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build --configLoader native && node scripts/build-sw.mjs",
+    "preview": "vite preview --configLoader native --host 0.0.0.0",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "deploy:china": "node scripts/deploy-oss.mjs",
+    "test:pwa": "node tests/pwa.mjs",
+    "test:webkit": "node tests/webkit.mjs",
+    "test:mechanics": "node tests/mechanics.mjs"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.180.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.7",
+    "playwright": "^1.56.0",
+    "ali-oss": "^6.23.0"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

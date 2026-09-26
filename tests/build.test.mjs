@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile,readdir,stat} from 'node:fs/promises';
+const read=p=>readFile(p,'utf8');
+test('built entry uses relative local assets and no runtime CDN',async()=>{const html=await read('dist/index.html');assert.match(html,/\.\/assets\//);assert.doesNotMatch(html,/(?:src|href)=["']https?:/);const files=await readdir('dist/assets');for(const f of files)if(f.endsWith('.css'))assert.doesNotMatch(await read('dist/assets/'+f),/@import|https?:\/\//);});
+test('PWA precaches exact build and uses explicit update activation',async()=>{const sw=await read('dist/sw.js');const files=await readdir('dist/assets');for(const f of files)assert.ok(sw.includes(f));assert.match(sw,/SKIP_WAITING/);assert.match(sw,/key\.startsWith\(PREFIX\)/);assert.match(sw,/index\.html/);const manifest=JSON.parse(await read('dist/manifest.webmanifest'));assert.equal(manifest.start_url,'./');for(const icon of manifest.icons)assert.ok((await stat('dist/'+icon.src)).size>0);});
+test('initial bundle remains below 15MB',async()=>{let size=0;async function walk(dir){for(const f of await readdir(dir,{withFileTypes:true})){const p=dir+'/'+f.name;if(f.isDirectory())await walk(p);else size+=(await stat(p)).size;}}await walk('dist');assert.ok(size<15*1024*1024);console.log('Total dist bytes:',size);});
+

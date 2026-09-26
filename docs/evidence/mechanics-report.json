@@ -1,0 +1,50 @@
+{
+  "passed": [
+    "AR-01 fire mode and ammo consumption",
+    "SMG-9 fire mode and ammo consumption",
+    "SR-50 fire mode and ammo consumption",
+    "PX-12 fire mode and ammo consumption",
+    "Sniper ADS FOV",
+    "Body ray damage distinct from headshot",
+    "Wave 1 = 3, Wave 2 = 5",
+    "LOW DPR cap and HIGH shadows"
+  ],
+  "result": {
+    "guns": [
+      {
+        "id": "AR-01",
+        "shots": 11,
+        "ammo": 19,
+        "mag": 30,
+        "automatic": true
+      },
+      {
+        "id": "SMG-9",
+        "shots": 16,
+        "ammo": 14,
+        "mag": 30,
+        "automatic": true
+      },
+      {
+        "id": "SR-50",
+        "shots": 1,
+        "ammo": 4,
+        "mag": 5,
+        "automatic": false
+      },
+      {
+        "id": "PX-12",
+        "shots": 1,
+        "ammo": 11,
+        "mag": 12,
+        "automatic": false
+      }
+    ],
+    "fov": 25.048329744174385,
+    "bodyHP": 70,
+    "wave1": 3,
+    "wave2": 5,
+    "lowDpr": 1,
+    "shadows": true
+  }
+}

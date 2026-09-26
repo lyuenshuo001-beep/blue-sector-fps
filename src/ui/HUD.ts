@@ -1,0 +1,32 @@
+export const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+export class HUD {
+    hitTime = 0;
+    toastTime = 0;
+    damageTime = 0;
+    waveTime = 0;
+    constructor() {
+        document.querySelector('#app')!.insertAdjacentHTML('beforeend', `
+ <div id="hud" class="hidden">
+ <header class="topbar"><div class="brand-small"><b>◈</b> BLUE SECTOR <span>/ SURVIVAL</span></div><div class="topstats"><span>WAVE <b id="wave">01</b></span><span>HOSTILES <b id="enemies">03</b></span><span>KILLS <b id="kills">0</b></span><button id="pause-button" aria-label="暂停">Ⅱ</button></div></header>
+ <div class="sector-label"><i></i> SECTOR B <span> / BLUE ROOM COMPLEX</span><small id="perf">SYSTEM ONLINE</small></div>
+ <div id="crosshair"><i></i><i></i><i></i><i></i><b></b></div><div id="hitmarker">×</div><div id="scope"><div></div></div><div id="damage"></div>
+ <div id="wave-banner"><small>THREAT DETECTED</small><strong>WAVE 01</strong></div><div id="toast"></div>
+ <div class="health"><small>VITAL STATUS</small><div><span>✚</span> <b id="hp">100</b><em>HP</em></div><div class="hp-track"><i id="hp-bar"></i></div></div>
+ <div class="weapon-panel"><small id="weapon-type">ASSAULT RIFLE</small><h3 id="weapon">AR-01</h3><div><b id="ammo">30</b><span> / <span id="reserve">120</span></span></div><small id="reload-status">READY</small></div>
+ <div class="pc-help">W A S D <span>MOVE</span> · R <span>RELOAD</span> · 1–4 <span>WEAPON</span> · SPACE <span>JUMP</span> · C <span>CROUCH</span> · ESC <span>PAUSE</span></div>
+ <div id="mobile-controls"><div id="look-zone"></div><div id="joystick"><div id="knob"></div></div><button class="action fire" data-action="fire">◎<small>FIRE</small></button><button class="action ads" data-action="ads">⊕<small>ADS</small></button><button class="action reload" data-action="reload">↻<small>RELOAD</small></button><button class="action jump" data-action="jump">↑<small>JUMP</small></button><button class="action crouch" data-action="crouch">⌄<small>CROUCH</small></button><button class="action switch" data-action="switch">⇄<small>SWITCH</small></button></div>
+ </div>
+ <section id="menu" class="screen"><div class="menu-top"><span>◈ AEROSPACE RESEARCH DIVISION</span><span>EST. 2086 / SECTOR B</span></div><div class="menu-content"><p class="eyebrow"><i></i> FACILITY BREACH / SURVIVAL PROTOCOL</p><h1>BLUE<br><span>SECTOR</span><em>蓝域行动</em></h1><p class="tagline">Survive the facility.</p><p class="description">深入蓝色航天设施。迎击「路一号」。<br>四把武器，无尽波次，一次生还的机会。</p><div class="menu-actions"><button id="play" class="primary">PLAY <span>开始行动 ↗</span></button><button id="settings-open" class="secondary">SETTINGS <span>设置</span></button></div><div class="featureline"><span>01 / ORIGINAL MAP</span><span>02 / WAVE SURVIVAL</span><span>03 / OFFLINE READY</span></div></div><div class="menu-bottom"><span><i></i> SYSTEM ONLINE</span><span id="install-hint">手机横屏 · 耳机体验更佳 · 无需注册</span><span>BUILD 1.0</span></div><div class="mission-card"><small>OPERATION / 001</small><h3>THE BLUE ROOM</h3><p>CONTAINMENT LOST<br>HOSTILE UNITS ACTIVE</p><div class="mini-map"><i></i><b> B </b><i></i></div><span>52 × 64 M / INDOOR CQB</span></div></section>
+ <section id="settings" class="screen overlay hidden"><div class="dialog"><p class="eyebrow">CONFIGURATION</p><h2>设置 / SETTINGS</h2><label>GRAPHICS / 画质<select id="quality"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option></select></label><p class="hint">LOW 优先流畅；MEDIUM 默认；HIGH 开启局部阴影。持续低帧率时自动降低渲染分辨率。</p><label>LOOK SENSITIVITY / 视角灵敏度<input id="sensitivity" type="range" min=".35" max="2" step=".05" value="1"></label><label>AUDIO / 音量<input id="volume" type="range" min="0" max="1" step=".05" value=".45"></label><button id="settings-close" class="primary">DONE / 完成</button></div></section>
+ <section id="pause" class="screen overlay hidden"><div class="dialog"><p class="eyebrow">PROTOCOL ON HOLD</p><h2>行动已暂停</h2><button id="resume" class="primary">RESUME / 继续</button><button id="pause-settings" class="secondary">SETTINGS / 设置</button><p class="hint">PC：点击继续后，鼠标锁定在游戏中。ESC 可退出。</p></div></section>
+ <section id="gameover" class="screen overlay hidden"><div class="dialog"><p class="eyebrow">SIGNAL LOST / MISSION REPORT</p><h2>GAME OVER</h2><div id="results"></div><button id="restart" class="primary">RESTART <span>重新行动 ↗</span></button><button id="back-menu" class="secondary">MAIN MENU / 主菜单</button></div></section>
+ <div id="rotate"><div>↻</div><h2>ROTATE YOUR PHONE</h2><p>PLEASE PLAY IN LANDSCAPE MODE</p><span>请横过手机继续行动</span></div>
+ <div id="update-notice" class="hidden">发现新版本 <button id="update">更新游戏</button></div><div id="wechat" class="hidden">若画面或横屏异常，建议使用系统浏览器打开 <button id="dismiss-wechat">知道了</button></div>
+ `);
+    }
+    hit(head: boolean) { this.hitTime = .16; $('hitmarker').className = head ? 'headshot' : ''; $('hitmarker').textContent = head ? '× HEADSHOT' : '×'; }
+    toast(text: string) { $('toast').textContent = text; this.toastTime = 2.2; }
+    wave(n: number) { $('wave-banner').querySelector('strong')!.textContent = 'WAVE ' + String(n).padStart(2, '0'); this.waveTime = 2.4; }
+    damage() { this.damageTime = .3; }
+    update(dt: number) { this.hitTime -= dt; this.toastTime -= dt; this.damageTime -= dt; this.waveTime -= dt; $('hitmarker').style.opacity = this.hitTime > 0 ? '1' : '0'; $('toast').style.opacity = this.toastTime > 0 ? '1' : '0'; $('damage').style.opacity = String(Math.max(0, this.damageTime) * 2); $('wave-banner').style.opacity = this.waveTime > 0 ? '1' : '0'; }
+}
