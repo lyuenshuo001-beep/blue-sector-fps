@@ -1,0 +1,9 @@
+{
+  "passed": [
+    "WeChat user-agent hint and dismiss",
+    "Touch PLAY, ADS and FIRE",
+    "No uncaught browser errors"
+  ],
+  "limitation": "Chromium with WeChat user agent only; not a real WeChat client or mainland network test",
+  "errors": []
+}

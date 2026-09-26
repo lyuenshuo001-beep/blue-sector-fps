@@ -20,6 +20,7 @@
 - [x] Touch release 清除持续射击，竖屏提示，DPR 上限。
 - [x] WebKit 手机尺寸：WebGL2 启动、ADS、SWITCH、CROUCH、FIRE、RELOAD。
 - [x] 程序合成音效；不支持 Web Audio 的浏览器静音降级。
+- [x] 微信 User-Agent 下提示、关闭提示、触屏 PLAY / ADS / FIRE 已通过 Chromium 模拟；不是微信真机结论。
 - [x] 无未捕获浏览器错误。
 - [x] 生产 /blue-sector/ 子目录加载，全量关键请求同源。
 - [x] PWA 缓存完成后断网刷新并开始游戏。
@@ -40,7 +41,8 @@ Playwright 的 WebKit 不等于 iPhone；Chromium 触摸模拟也不等于 Andro
 
 ## 需要账号和外部资源才能完成
 
-- [ ] 用户拥有的 GitHub 远程仓库已创建并推送。
+- [x] 用户的公开 GitHub 仓库 lyuenshuo001-beep/blue-sector-fps 已确认。
+- [ ] 源码推送等待 GitHub 网页登录授权。
 - [ ] GitHub Pages 工作流在实际仓库运行，实际 URL 验证。
 - [ ] 阿里云 OSS／域名／备案／证书已配置。
 - [ ] OSS 自动部署在真实账号执行成功。
@@ -51,3 +53,4 @@ Playwright 的 WebKit 不等于 iPhone；Chromium 触摸模拟也不等于 Andro
 ## 已知第一版边界
 
 紧凑地图直跑用时约十余秒，1–2 分钟指完整遭遇与绕行而非直线跑图。机器人采用简化网格路径点；没有多人联网、破坏场景、翻越、真实骨骼动作或商业游戏资源。半自动武器需逐次按 FIRE。门框保持常开，玻璃为不可破坏阻挡。补给与机器人复用对象。HTTPS、首次联网和浏览器可用存储是离线缓存的前提。
+
