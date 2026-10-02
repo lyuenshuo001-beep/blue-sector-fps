@@ -27,8 +27,8 @@ export class Player {
         input.jump = false;
         this.vy -= 14 * dt;
         this.position.y += this.vy * dt;
-        if (this.position.y <= 0) {
-            this.position.y = 0;
+        if (this.position.y <= map.groundAt(this.position.x,this.position.z)) {
+            this.position.y = map.groundAt(this.position.x,this.position.z);
             this.vy = 0;
             this.ground = true;
         }
@@ -40,3 +40,4 @@ export class Player {
         camera.rotation.set(this.pitch + this.recoil, this.yaw, 0, 'YXZ');
     }
 }
+

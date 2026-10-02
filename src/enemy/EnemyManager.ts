@@ -79,10 +79,11 @@ export class EnemyManager {
                 else {
                     const speed = e.state === 'CHASE' ? 2.5 : 1.65;
                     this.map.move(p, dx / l * speed * dt, dz / l * speed * dt, .43);
-                    e.root.rotation.y = Math.atan2(dx, dz);
+                    p.y=this.map.groundAt(p.x,p.z);e.root.rotation.y = Math.atan2(dx, dz);
                     e.legs.forEach((leg, i) => leg.rotation.x = Math.sin(e.age * 8 + i * Math.PI) * .35);
                 }
             }
         }
     }
 }
+

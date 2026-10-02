@@ -1,3 +1,4 @@
+import {weaponModel} from './WeaponModel';
 import * as T from 'three';
 import { Weapon, SPECS } from './Weapon';
 import { InputManager } from '../core/InputManager';
@@ -17,16 +18,14 @@ export class WeaponManager {
     flash: T.Mesh;
     flashLeft = 0;
     constructor(readonly camera: T.PerspectiveCamera, readonly audio: AudioManager) {
-        const dark = new T.MeshStandardMaterial({ color: 0x263b49, metalness: .65, roughness: .42, depthTest: false }), trim = new T.MeshStandardMaterial({ color: 0x778b94, metalness: .5, depthTest: false }), blue = new T.MeshBasicMaterial({ color: 0x66dcff, depthTest: false });
-        SPECS.forEach((s, i) => { const g = new T.Group(); const box = (w: number, h: number, d: number, x: number, y: number, z: number, m: T.Material) => { const mesh = new T.Mesh(new T.BoxGeometry(w, h, d), m); mesh.position.set(x, y, z); mesh.renderOrder = 10; g.add(mesh); }; box(.15, .18, .46 * s.length, 0, 0, -.22, dark); box(.065, .065, .48 * s.length, 0, .025, -.5 * s.length, trim); box(.10, .2, .11, 0, -.15, -.18, dark); box(.1, .14, .18, 0, -.07, .05, dark); box(.16, .02, .25, 0, .10, -.2, trim); box(.035, .035, .04, 0, .14, -.17, blue); box(.13, .035, .11, 0, .13, -.38, dark); if (i === 2)
-            box(.12, .12, .3, 0, .18, -.25, dark); box(.045, .025, .18, .08, .01, -.22, blue); g.visible = i === 0; this.root.add(g); this.models.push(g); });
+        SPECS.forEach((s,i)=>{const g=weaponModel(s.id,i===2?'sniper':'iron','standard','vertical',false,true);g.visible=i===0;this.root.add(g);this.models.push(g);});
         this.flash = new T.Mesh(new T.ConeGeometry(.10, .25, 5), new T.MeshBasicMaterial({ color: 0xffd07d, depthTest: false, transparent: true, opacity: .95 }));
         this.flash.rotation.x = -Math.PI / 2;
         this.flash.renderOrder = 11;
         this.flash.visible = false;
         this.root.add(this.flash);
         camera.add(this.root);
-        this.root.scale.setScalar(.8);
+        this.root.scale.setScalar(.85);
         this.root.position.set(.25, -.23, -.38);
     }
     get current() { return this.weapons[this.index]; }
@@ -91,3 +90,4 @@ export class WeaponManager {
         this.root.visible = !(input.ads && this.index === 2);
     }
 }
+

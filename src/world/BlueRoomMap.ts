@@ -14,7 +14,7 @@ export class BlueRoomMap {
     spawns = [new T.Vector3(-20, 0, -25), new T.Vector3(20, 0, -25), new T.Vector3(-21, 0, 8), new T.Vector3(21, 0, 8), new T.Vector3(0, 0, -28), new T.Vector3(-20, 0, 24), new T.Vector3(20, 0, 24)];
     nav: T.Vector3[] = [];
     links: number[][] = [];
-    constructor(readonly scene: T.Scene) {
+    constructor(readonly scene: T.Scene, build = true) { if (!build) return;
         this.box(0, -.25, 0, 52, .5, 64, 0x263e4b, false);
         this.box(-26, 2.7, 0, .6, 5.4, 64, 0x314657);
         this.box(26, 2.7, 0, .6, 5.4, 64, 0x314657);
@@ -128,6 +128,7 @@ export class BlueRoomMap {
         gs.forEach(g => g.dispose());
     } this.batches.clear(); }
     label(text: string, x: number, y: number, z: number, w: number, h: number, rot = 0) { const c = document.createElement('canvas'); c.width = 1024; c.height = 192; const ctx = c.getContext('2d')!; ctx.fillStyle = '#091d2b'; ctx.fillRect(0, 0, 1024, 192); ctx.fillStyle = '#a0edff'; ctx.font = 'bold 100px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, 512, 96); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ map: t })); m.position.set(x, y, z); m.rotation.y = rot; this.scene.add(m); }
+    groundAt(x:number,z:number){return 0;}
     blocked(x: number, z: number, r = .38) { return this.obstacles.some(o => Math.abs(x - o.x) < o.w / 2 + r && Math.abs(z - o.z) < o.d / 2 + r); }
     move(p: T.Vector3, dx: number, dz: number, r = .38) { if (!this.blocked(p.x + dx, p.z, r))
         p.x += dx; if (!this.blocked(p.x, p.z + dz, r))
@@ -158,3 +159,4 @@ export class BlueRoomMap {
         return []; const out: T.Vector3[] = []; for (let n = end; n !== start; n = prev.get(n)!)
         out.unshift(this.nav[n].clone()); return out; }
 }
+

@@ -2,7 +2,7 @@ import * as T from 'three';
 import { Renderer, Quality } from './Renderer';
 import { InputManager } from './InputManager';
 import { Player } from '../player/Player';
-import { BlueRoomMap } from '../world/BlueRoomMap';
+import { SkywardMap } from '../world/SkywardMap';
 import { WeaponManager } from '../weapons/WeaponManager';
 import { EnemyManager } from '../enemy/EnemyManager';
 import { Enemy } from '../enemy/Enemy';
@@ -13,7 +13,7 @@ import { HitEffect } from '../effects/HitEffect';
 export class Game {
     hud = new HUD();
     renderer = new Renderer();
-    map = new BlueRoomMap(this.renderer.scene);
+    map = new SkywardMap(this.renderer.scene);
     input = new InputManager(this.renderer.gl.domElement);
     audio = new AudioManager();
     player = new Player();
@@ -164,3 +164,4 @@ export class Game {
         this.renderer.render();
     }
 }
+
