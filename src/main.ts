@@ -1,5 +1,6 @@
-import './lobby.css';
+
 import './style.css';
+import './lobby.css';
 import { Game } from './core/Game';
 try {
     const game = new Game();

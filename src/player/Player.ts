@@ -26,6 +26,7 @@ export class Player {
             this.ground = false;
         }
         input.jump = false;
+        if(this.position.y>map.groundAt(this.position.x,this.position.z)+.05)this.ground=false;
         this.vy -= 14 * dt;
         this.position.y += this.vy * dt;
         if (this.position.y <= map.groundAt(this.position.x,this.position.z)) {
@@ -41,4 +42,3 @@ export class Player {
         camera.rotation.set(this.pitch + this.recoil, this.yaw, 0, 'YXZ');
     }
 }
-

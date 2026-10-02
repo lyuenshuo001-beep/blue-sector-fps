@@ -1,0 +1,12 @@
+{
+  "pass": true,
+  "checks": [
+    "lobby",
+    "operator",
+    "loadout",
+    "ADS",
+    "fire",
+    "armor"
+  ],
+  "errors": []
+}

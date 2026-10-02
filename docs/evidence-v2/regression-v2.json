@@ -1,0 +1,140 @@
+{
+  "guns": [
+    {
+      "id": "AR-01",
+      "automatic": true,
+      "shots": 11,
+      "ammo": 19,
+      "mag": 30,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "SMG-9",
+      "automatic": true,
+      "shots": 16,
+      "ammo": 14,
+      "mag": 30,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "SR-50",
+      "automatic": false,
+      "shots": 1,
+      "ammo": 4,
+      "mag": 5,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "PX-12",
+      "automatic": false,
+      "shots": 1,
+      "ammo": 11,
+      "mag": 12,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "AR-02",
+      "automatic": true,
+      "shots": 9,
+      "ammo": 21,
+      "mag": 30,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "KA-47",
+      "automatic": true,
+      "shots": 8,
+      "ammo": 17,
+      "mag": 25,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "CB-7",
+      "automatic": true,
+      "shots": 13,
+      "ammo": 15,
+      "mag": 28,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "VX-45",
+      "automatic": true,
+      "shots": 16,
+      "ammo": 10,
+      "mag": 26,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "CX-6",
+      "automatic": true,
+      "shots": 13,
+      "ammo": 19,
+      "mag": 32,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "BA-90",
+      "automatic": false,
+      "shots": 1,
+      "ammo": 4,
+      "mag": 5,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "DMR-21",
+      "automatic": false,
+      "shots": 1,
+      "ammo": 15,
+      "mag": 16,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "SG-8",
+      "automatic": false,
+      "shots": 1,
+      "ammo": 7,
+      "mag": 8,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "SG-12",
+      "automatic": false,
+      "shots": 1,
+      "ammo": 9,
+      "mag": 10,
+      "reloaded": true,
+      "conserved": true
+    },
+    {
+      "id": "HP-45",
+      "automatic": false,
+      "shots": 1,
+      "ammo": 7,
+      "mag": 8,
+      "reloaded": true,
+      "conserved": true
+    }
+  ],
+  "jump": true,
+  "crouch": true,
+  "heal": true,
+  "refill": true,
+  "wave1": 3,
+  "wave2": 5,
+  "enemyDamage": 24,
+  "over": true,
+  "restart": true,
+  "mobileMenuScroll": 145
+}

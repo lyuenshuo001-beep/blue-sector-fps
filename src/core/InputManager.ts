@@ -52,7 +52,7 @@ export class InputManager {
             this.reset(); });
         document.addEventListener('pointerlockchange', () => { if (!document.pointerLockElement && this.enabled && !matchMedia('(pointer:coarse)').matches)
             this.pause = true; });
-        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+        document.addEventListener('touchmove', e => {if(this.enabled)e.preventDefault();}, { passive: false });
         const joy = document.querySelector<HTMLElement>('#joystick')!, knob = document.querySelector<HTMLElement>('#knob')!;
         const update = (e: PointerEvent) => { const r = joy.getBoundingClientRect(), x = (e.clientX - r.left - r.width / 2) / (r.width * .36), y = (e.clientY - r.top - r.height / 2) / (r.height * .36), l = Math.max(1, Math.hypot(x, y)); this.move = { x: x / l, y: y / l }; knob.style.transform = `translate(${this.move.x * 32}px,${this.move.y * 32}px)`; };
         joy.addEventListener('pointerdown', e => { if (!this.enabled || this.joyId !== -1)

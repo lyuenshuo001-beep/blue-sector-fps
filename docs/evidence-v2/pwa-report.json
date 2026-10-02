@@ -1,0 +1,25 @@
+{
+  "results": [
+    "All production requests are same-origin under repository subpath",
+    "Offline reload and playable cached game",
+    "Explicit update switches service worker, reloads and removes old version"
+  ],
+  "requests": [
+    "http://127.0.0.1:4182/blue-sector/?test=1",
+    "http://127.0.0.1:4182/blue-sector/assets/index-DjMk9qDK.js",
+    "http://127.0.0.1:4182/blue-sector/assets/index-r3C_u4u2.css",
+    "http://127.0.0.1:4182/blue-sector/?test=1",
+    "http://127.0.0.1:4182/blue-sector/assets/index-DjMk9qDK.js",
+    "http://127.0.0.1:4182/blue-sector/assets/index-r3C_u4u2.css",
+    "http://127.0.0.1:4182/blue-sector/?test=1",
+    "http://127.0.0.1:4182/blue-sector/assets/index-DjMk9qDK.js",
+    "http://127.0.0.1:4182/blue-sector/assets/index-r3C_u4u2.css",
+    "http://127.0.0.1:4182/blue-sector/?test=1",
+    "http://127.0.0.1:4182/blue-sector/assets/index-DjMk9qDK.js",
+    "http://127.0.0.1:4182/blue-sector/assets/index-r3C_u4u2.css",
+    "http://127.0.0.1:4182/blue-sector/?test=1",
+    "http://127.0.0.1:4182/blue-sector/assets/index-DjMk9qDK.js",
+    "http://127.0.0.1:4182/blue-sector/assets/index-r3C_u4u2.css"
+  ],
+  "errors": []
+}

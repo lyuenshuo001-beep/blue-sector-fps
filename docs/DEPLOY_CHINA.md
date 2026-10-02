@@ -1,6 +1,6 @@
 # 中国大陆静态部署：阿里云 OSS
 
-本指南对应 BLUE SECTOR 纯前端游戏。一份 GitHub 源码、一次构建产生 dist，可同时发布 GitHub Pages 与中国大陆 OSS。这里不包含你的账户、实际 Bucket 或可访问域名；这些资源必须在你的账号中创建。
+本指南对应闪烁行动 / TWINKLE OPS（原 BLUE SECTOR） 纯前端游戏。一份 GitHub 源码、一次构建产生 dist，可同时发布 GitHub Pages 与中国大陆 OSS。这里不包含你的账户、实际 Bucket 或可访问域名；这些资源必须在你的账号中创建。
 
 ## 1. 准备阿里云账号与域名
 

@@ -1,0 +1,12 @@
+{
+  "passed": [
+    "Lobby > operator > loadout > deploy flow",
+    "Attachments change magazine and recoil; operator applied",
+    "4x changes actual FOV",
+    "Credits settlement idempotent and based on stats",
+    "Buy/equip spends credits once; reload persists loadout and attachments",
+    "Overload, cooldown, kill extension, collision-aware dash, reveal, heal, armor",
+    "Mobile lobby and three-touch move/look/fire preserved; skill button works"
+  ],
+  "errors": []
+}

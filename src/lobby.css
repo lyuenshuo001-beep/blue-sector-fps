@@ -17,3 +17,6 @@
 
 #menu{backdrop-filter:none;background:linear-gradient(90deg,#091722d9 0%,#09172222 48%,#09172280 100%)}#skill-controls{z-index:4}#crosshair[data-reticle=red] i,#crosshair[data-reticle=holo] i{display:none}#crosshair[data-reticle=red] b{width:5px;height:5px;left:-2.5px;top:-2.5px;border-radius:50%;background:#ff5a40;box-shadow:0 0 5px #ff3428}#crosshair[data-reticle=holo] b{width:18px;height:18px;left:-9px;top:-9px;border-radius:50%;background:transparent;border:2px solid #ff6856}#scope[data-reticle='2x']{background:radial-gradient(circle at center,transparent 0,transparent 34vh,#000e 34.5vh)}#scope[data-reticle='2x'] div{width:68vh;height:68vh}
 
+
+.weapon-choice,.selection-card{touch-action:pan-y}.attachment-fields select{touch-action:manipulation}
+
