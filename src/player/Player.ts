@@ -4,6 +4,7 @@ import { BlueRoomMap } from '../world/BlueRoomMap';
 export class Player {
     position = new T.Vector3(0, 0, 27);
     hp = 100;
+    mobility=1;speedBoost=1;sprinting=false;armor=0;
     yaw = 0;
     pitch = 0;
     height = 1.65;
@@ -17,7 +18,7 @@ export class Player {
         this.yaw -= input.look.x * .0024 * input.sensitivity * (input.ads ? .55 : 1);
         this.pitch = T.MathUtils.clamp(this.pitch - input.look.y * .0024 * input.sensitivity * (input.ads ? .55 : 1), -1.4, 1.4);
         input.look = { x: 0, y: 0 };
-        const a = input.axes(), l = Math.max(1, Math.hypot(a.x, a.y)), speed = input.crouch ? 2.3 : input.ads ? 3 : 5;
+        const a = input.axes(), l = Math.max(1, Math.hypot(a.x, a.y)), speed = (input.crouch ? 2.3 : input.ads ? 3 : input.sprint||input.keys.has('ShiftLeft')?7:5)*this.mobility*this.speedBoost;this.sprinting=(input.sprint||input.keys.has('ShiftLeft'))&&!input.ads&&!input.crouch;
         this.moving = Math.hypot(a.x, a.y) > .08;
         map.move(this.position, (a.x * Math.cos(this.yaw) - a.y * Math.sin(this.yaw)) / l * speed * dt, (-a.x * Math.sin(this.yaw) - a.y * Math.cos(this.yaw)) / l * speed * dt);
         if (input.jump && this.ground) {

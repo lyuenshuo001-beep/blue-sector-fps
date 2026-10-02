@@ -31,7 +31,13 @@ export class SkywardMap extends BlueRoomMap{
  this.clock(0,9,-23.4);this.sign('A  /  FONTANA',-23,3,-13,5,.8);this.sign('B  /  WORKSHOP',23,4,3.3,6,.8);this.sign('MERCATO',-25,3.6,11,5,.8);this.sign('SKYWARD',0,4,-23.3,6,1);
  const eggs:[string,number,number,number,number][]=[['Twinkle原创',-28,1,20,0],['TWINKLE LAB',28,2,-7,0],['PROPERTY OF TWINKLE',-12,1,21.6,0],['Created by Twinkle',7,1,29.9,0],['TWINKLE INDUSTRIES',-22,1,-4.1,0],['Twinkle原创',1,1,-23.4,0]];
  for(const [t,x,y,z,rot]of eggs){this.sign(t,x,y,z,1.4,.28,rot);this.secrets.push(new T.Vector3(x,y,z));}
- this.flushParts();this.buildNav();
+ this.flushParts();this.addAtmosphere();this.buildNav();
+ }
+// Elevated surfaces can only be entered through a ramp, not by snapping up cliff edges.
+ override move(p:T.Vector3,dx:number,dz:number,r=.38){const can=(x:number,z:number)=>!this.blocked(x,z,r)&&this.groundAt(x,z)<=Math.max(p.y,this.groundAt(p.x,p.z))+.32;if(can(p.x+dx,p.z))p.x+=dx;if(can(p.x,p.z+dz))p.z+=dz;}
+ override clear(a:T.Vector3,b:T.Vector3,r=.35){const n=Math.ceil(a.distanceTo(b)/.35);let previous=this.groundAt(a.x,a.z);for(let i=0;i<=n;i++){const t=i/Math.max(1,n),x=a.x+(b.x-a.x)*t,z=a.z+(b.z-a.z)*t,h=this.groundAt(x,z);if(this.blocked(x,z,r)||Math.abs(h-previous)>.4)return false;previous=h;}return true;}
+ addAtmosphere(){const c=document.createElement('canvas');c.width=512;c.height=256;const ctx=c.getContext('2d')!,gradient=ctx.createLinearGradient(0,0,0,256);gradient.addColorStop(0,'#439dd2');gradient.addColorStop(.5,'#abd7e9');gradient.addColorStop(.7,'#e2e5dc');gradient.addColorStop(1,'#8a999f');ctx.fillStyle=gradient;ctx.fillRect(0,0,512,256);for(let i=0;i<14;i++){ctx.fillStyle='rgba(255,255,255,.16)';ctx.beginPath();ctx.ellipse((i*91)%512,55+(i*23)%60,25+i%4*9,3+i%3,0,0,Math.PI*2);ctx.fill();}const sky=new T.CanvasTexture(c);sky.mapping=T.EquirectangularReflectionMapping;sky.colorSpace=T.SRGBColorSpace;this.scene.background=sky;
+ const leaves=new T.InstancedMesh(new T.SphereGeometry(.17,6,4),material('plaster',0x4f7656),80),dummy=new T.Object3D();for(let i=0;i<80;i++){const side=i<40?-1:1,j=i%40;dummy.position.set(side*6.95,3.1+j*.1,14+Math.sin(j*.8)*.5);dummy.scale.set(1.5,1,.5);dummy.rotation.z=j*.5;dummy.updateMatrix();leaves.setMatrixAt(i,dummy.matrix);}leaves.instanceMatrix.needsUpdate=true;this.scene.add(leaves);
  }
  groundAt(x:number,z:number){if(x>=17&&x<=25){if(z>=4&&z<=12)return 2.4;if(z>12&&z<=20)return(20-z)*.3;}return 0;}
  zone(p:T.Vector3){return p.x<-17?(p.z<0?'A / FONTANA':p.z<18?'MARKET':'GARDEN'):p.x>16?(p.z<4?'B / WORKSHOP':p.z<20?'BALCONY':'EAST LINK'):'MID / CLOCK PLAZA';}

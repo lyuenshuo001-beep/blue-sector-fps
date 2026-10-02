@@ -1,3 +1,5 @@
+import {Profile} from '../core/Profile';
+import {disposeWeapon} from './WeaponModel';
 import {weaponModel} from './WeaponModel';
 import * as T from 'three';
 import { Weapon, SPECS } from './Weapon';
@@ -7,6 +9,9 @@ import { AudioManager } from '../audio/AudioManager';
 export class WeaponManager {
     weapons = SPECS.map(s => new Weapon(s));
     index = 0;
+    equipped=[0,1,2,3];
+    configureLoadout(profile:Profile){this.equipped=[profile.data.primary,profile.data.secondary].map(id=>SPECS.findIndex(w=>w.id===id));this.weapons.forEach((w,i)=>{const a=profile.getAttachments(w.spec.id);w.configure(a);this.root.remove(this.models[i]);disposeWeapon(this.models[i]);const model=weaponModel(w.spec.id,a.scope,a.muzzle,a.grip,a.magazine==='extended',true);model.visible=false;this.root.add(model);this.models[i]=model;});this.index=this.equipped[0];}
+
     cooldown = 0;
     reloadLeft = 0;
     bloom = 0;
@@ -29,8 +34,8 @@ export class WeaponManager {
         this.root.position.set(.25, -.23, -.38);
     }
     get current() { return this.weapons[this.index]; }
-    reset() { this.weapons.forEach(w => w.reset()); this.index = 0; this.cooldown = 0; this.reloadLeft = 0; this.bloom = 0; this.kick = 0; this.shots = 0; this.hits = 0; this.models.forEach((m, i) => m.visible = i === 0); }
-    switch(i: number) { if (i < 0 || i > 3 || i === this.index)
+    reset() { this.weapons.forEach(w => w.reset()); this.index = this.equipped[0]; this.cooldown = 0; this.reloadLeft = 0; this.bloom = 0; this.kick = 0; this.shots = 0; this.hits = 0; this.models.forEach((m, i) => m.visible = i === this.index); }
+    switch(i: number) { if (i < 0 || i >= this.weapons.length || i === this.index)
         return; this.index = i; this.reloadLeft = 0; this.cooldown = .22; this.kick = .12; this.models.forEach((m, j) => m.visible = j === i); this.audio.play('ui'); }
     reload() { const w = this.current; if (!this.reloadLeft && w.ammo < w.spec.magazine && w.reserve > 0) {
         this.reloadLeft = w.spec.reloadTime;
@@ -38,11 +43,11 @@ export class WeaponManager {
     } }
     update(dt: number, input: InputManager, player: Player, shoot: (spread: number) => void) {
         if (input.switchTo >= 0) {
-            this.switch(input.switchTo);
+            if(input.switchTo<this.equipped.length)this.switch(this.equipped[input.switchTo]);
             input.switchTo = -1;
         }
         if (input.cycle) {
-            this.switch((this.index + 1) % 4);
+            this.switch(this.equipped[(this.equipped.indexOf(this.index)+1)%this.equipped.length]);
             input.cycle = false;
         }
         if (input.reload) {
@@ -68,26 +73,27 @@ export class WeaponManager {
                 this.cooldown = 1 / w.spec.fireRate;
                 shoot(w.spec.spread * (input.ads ? w.spec.adsAccuracy : w.spec.hipAccuracy) * (1 + this.bloom * 2 + (player.moving ? 1 : 0)));
                 this.bloom = Math.min(1.5, this.bloom + .18);
+                player.yaw+=(Math.random()-.5)*w.spec.horizontal;
                 player.recoil += w.spec.recoil * (1 + this.bloom * .4);
                 this.kick = .07;
-                this.flashLeft = .045;
-                this.audio.play(this.index === 2 ? 'sniper' : 'shot');
+                this.flashLeft = w.attachments.muzzle==='suppressor'?.015:.045;
+                this.audio.play(w.spec.category==='SNIPER'?'sniper':'shot',w.attachments.muzzle==='suppressor'?.35:1);
             }
             else
                 this.reload();
         }
         const fov = input.ads ? w.spec.adsFov : 78;
-        this.camera.fov = T.MathUtils.damp(this.camera.fov, fov, 14, dt);
+        this.camera.fov = T.MathUtils.damp(this.camera.fov, fov, w.spec.adsSpeed, dt);
         this.camera.updateProjectionMatrix();
         this.root.position.x = T.MathUtils.damp(this.root.position.x, input.ads ? 0 : .25, 14, dt);
         this.root.position.y = T.MathUtils.damp(this.root.position.y, input.ads ? -.17 : -.23, 14, dt) - (this.reloadLeft > 0 ? Math.sin(this.reloadLeft / w.spec.reloadTime * Math.PI) * .015 : 0);
-        this.root.position.z = -.38 + this.kick;
-        this.root.rotation.z = this.reloadLeft > 0 ? -.4 : Math.sin(player.walk) * .015 * (player.moving ? 1 : 0);
+        this.root.position.z = -.38 + this.kick;this.root.position.y+=(Math.sin(performance.now()*.0018)*.0015)+(player.moving?Math.sin(player.walk)*(player.sprinting?.008:.003):0);
+        this.root.rotation.x=this.reloadLeft>0?Math.sin(this.reloadLeft/w.spec.reloadTime*Math.PI)*.45:0;this.root.rotation.z = this.reloadLeft > 0 ? -.6 : Math.sin(player.walk) * .015 * (player.moving ? 1 : 0);
         this.flashLeft -= dt;
         this.flash.visible = this.flashLeft > 0;
-        this.flash.position.set(0, .03, -.77 * w.spec.length);
+        this.flash.position.set(0, .03, Number(this.models[this.index].userData.muzzleZ||-.95));
         this.flash.rotation.z = Math.random() * Math.PI;
-        this.root.visible = !(input.ads && this.index === 2);
+        this.root.visible = !(input.ads && ['2x','4x','sniper'].includes(w.attachments.scope));
     }
 }
 

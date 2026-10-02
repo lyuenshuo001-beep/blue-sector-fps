@@ -12,14 +12,14 @@ export class AudioManager {
         for (let i = 0; i < d.length; i++)
             d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
     } void this.ctx.resume().catch(() => { }); }
-    play(kind: 'shot' | 'sniper' | 'enemy' | 'reload' | 'hit' | 'head' | 'kill' | 'ui' | 'step' | 'pickup') {
+    play(kind: 'shot' | 'sniper' | 'enemy' | 'reload' | 'hit' | 'head' | 'kill' | 'ui' | 'step' | 'pickup',strength=1) {
         const c = this.ctx;
         if (!c || c.state !== 'running' || this.volume === 0)
             return;
         const gain = c.createGain();
         gain.connect(c.destination);
         const gun = ['shot', 'sniper', 'enemy', 'step'].includes(kind), dur = kind === 'sniper' ? .23 : gun ? .09 : kind === 'reload' ? .17 : .08;
-        gain.gain.setValueAtTime(this.volume * (kind === 'step' ? .09 : kind === 'enemy' ? .18 : gun ? .36 : .13), c.currentTime);
+        gain.gain.setValueAtTime(this.volume * strength * (kind === 'step' ? .09 : kind === 'enemy' ? .18 : gun ? .36 : .13), c.currentTime);
         gain.gain.exponentialRampToValueAtTime(.001, c.currentTime + dur);
         if (gun) {
             const src = c.createBufferSource();

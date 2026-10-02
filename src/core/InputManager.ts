@@ -10,6 +10,7 @@ export class InputManager {
     switchTo = -1;
     cycle = false;
     pause = false;
+    sprint=false;skill=-1;
     enabled = false;
     sensitivity = 1;
     private joyId = -1;
@@ -21,7 +22,8 @@ export class InputManager {
         addEventListener('keydown', e => { if (!this.enabled)
             return; if (['Space', 'ControlLeft', 'ControlRight', 'Tab'].includes(e.code))
             e.preventDefault(); this.keys.add(e.code); if (e.repeat)
-            return; if (e.code === 'KeyR')
+            return; if(['KeyQ','KeyE','KeyX'].includes(e.code))this.skill=['KeyQ','KeyE','KeyX'].indexOf(e.code);
+            if (e.code === 'KeyR')
             this.reload = true; if (e.code === 'Space')
             this.jump = true; if (e.code === 'KeyC' || e.code.startsWith('Control'))
             this.crouch = !this.crouch; if (/^Digit[1-4]$/.test(e.code))
@@ -82,7 +84,9 @@ export class InputManager {
             this.fire = true;
             this.pressed = true;
         }
-        else if (a === 'ads')
+        else if(a==='sprint')this.sprint=!this.sprint;
+                else if(a?.startsWith('skill'))this.skill=Number(a.slice(-1));
+                else if (a === 'ads')
             this.ads = !this.ads;
         else if (a === 'crouch')
             this.crouch = !this.crouch;
@@ -96,6 +100,6 @@ export class InputManager {
             b.addEventListener(ev, release as EventListener); });
     }
     consumePress() { const p = this.pressed; this.pressed = false; return p; }
-    reset() { this.keys.clear(); this.move = { x: 0, y: 0 }; this.look = { x: 0, y: 0 }; this.fire = false; this.ads = false; this.pressed = false; this.jump = false; this.reload = false; this.cycle = false; this.switchTo = -1; this.joyId = -1; this.lookId = -1; this.fireIds.clear(); document.querySelector<HTMLElement>('#knob')!.style.transform = ''; }
+    reset() { this.keys.clear();this.skill=-1;this.sprint=false; this.move = { x: 0, y: 0 }; this.look = { x: 0, y: 0 }; this.fire = false; this.ads = false; this.pressed = false; this.jump = false; this.reload = false; this.cycle = false; this.switchTo = -1; this.joyId = -1; this.lookId = -1; this.fireIds.clear(); document.querySelector<HTMLElement>('#knob')!.style.transform = ''; }
     axes() { return { x: Math.max(-1, Math.min(1, this.move.x + (this.keys.has('KeyD') ? 1 : 0) - (this.keys.has('KeyA') ? 1 : 0))), y: Math.max(-1, Math.min(1, -this.move.y + (this.keys.has('KeyW') ? 1 : 0) - (this.keys.has('KeyS') ? 1 : 0))) }; }
 }

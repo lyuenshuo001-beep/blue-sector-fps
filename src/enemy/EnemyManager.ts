@@ -39,7 +39,7 @@ export class EnemyManager {
             this.spawnTimer = .65;
         }
         for (const e of this.active) {
-            e.age += dt;
+            e.age += dt;e.slow=Math.max(0,e.slow-dt);e.reveal=Math.max(0,e.reveal-dt);e.outline.visible=e.reveal>0;e.lod.update(camera);e.lod.position.y=e.path.length?Math.sin(e.age*8)*.015:0;
             e.think -= dt;
             e.attack -= dt;
             e.flash.visible = e.attack > 1.05 && e.attack < 1.12;
@@ -77,7 +77,7 @@ export class EnemyManager {
                 if (l < .25)
                     e.path.shift();
                 else {
-                    const speed = e.state === 'CHASE' ? 2.5 : 1.65;
+                    const speed = (e.state === 'CHASE' ? 2.5 : 1.65)*(e.slow>0?.3:1);
                     this.map.move(p, dx / l * speed * dt, dz / l * speed * dt, .43);
                     p.y=this.map.groundAt(p.x,p.z);e.root.rotation.y = Math.atan2(dx, dz);
                     e.legs.forEach((leg, i) => leg.rotation.x = Math.sin(e.age * 8 + i * Math.PI) * .35);

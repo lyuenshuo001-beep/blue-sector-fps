@@ -31,7 +31,7 @@ export class Pickups {
         }
         this.reset();
     }
-    reset() { this.elapsed = 0; this.items.forEach((item, i) => { item.active = true; item.timer = 0; const spots = [[-8, 20], [8, 20], [-18, 9], [18, 9], [-8, -12], [8, -12], [-18, -27], [18, -27]]; item.mesh.position.set(spots[i][0], .6, spots[i][1]); item.mesh.visible = true; }); }
+    reset() { this.elapsed = 0; this.items.forEach((item, i) => { item.active = true; item.timer = 0; const spots = [[-8, 20], [8, 20], [-18, 9], [18, 9], [-8, -12], [8, -12], [-18, -27], [18, -27]]; let x=spots[i][0],z=spots[i][1];if(this.map.blocked(x,z,.7)){const n=this.map.nav[(i*89)%this.map.nav.length];x=n.x;z=n.z;}item.mesh.position.set(x,this.map.groundAt(x,z)+.6,z); item.mesh.visible = true; }); }
     update(dt: number, player: Player, weapons: WeaponManager, notify: (s: string) => void) {
         this.elapsed += dt;
         for (const item of this.items) {
@@ -45,7 +45,7 @@ export class Pickups {
                 }
                 continue;
             }
-            item.mesh.position.y = .55 + Math.sin(this.elapsed * 2) * .08;
+            item.mesh.position.y = this.map.groundAt(item.mesh.position.x,item.mesh.position.z)+.55 + Math.sin(this.elapsed * 2) * .08;
             item.mesh.rotation.y += dt * .6;
             if (item.mesh.position.distanceTo(player.position) < 1.4) {
                 if (item.type === 'health' && player.hp >= 100)
