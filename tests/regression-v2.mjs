@@ -7,7 +7,7 @@ try {
  const page=await browser.newPage();
  await page.goto('http://localhost:5174/?test=1'); await page.waitForFunction(()=>!!window.__game);
  const result=await page.evaluate(()=>{
-  const g=window.__game;g.capture=()=>{};g.start();g.state='paused';const guns=[];
+  const g=window.__game;g.capture=()=>{};g.lobby.mode='survival';g.start();g.state='paused';const guns=[];
   for(let i=0;i<g.weapons.weapons.length;i++){
    g.weapons.reset();g.input.reset();g.weapons.switch(i);g.weapons.cooldown=0;g.input.fire=true;g.input.pressed=true;
    g.weapons.update(.01,g.input,g.player,()=>{});for(let n=0;n<60;n++)g.weapons.update(.02,g.input,g.player,()=>{});
@@ -21,7 +21,7 @@ try {
   const ammo=g.pickups.items.find(i=>i.type==='ammo');g.weapons.current.reserve=0;g.player.position.copy(ammo.mesh.position);g.pickups.update(.01,g.player,g.weapons,()=>{});const refill=g.weapons.current.reserve>0&&!ammo.active;
   g.player.reset();g.input.reset();g.player.update(.02,g.input,g.map,g.renderer.camera);g.enemies.reset();g.enemies.update(.01,g.player,g.renderer.camera,()=>{},()=>{});const wave1=g.enemies.remaining+g.enemies.active.length;g.enemies.pool.forEach(e=>e.die());g.enemies.remaining=0;g.enemies.waveDelay=0;g.enemies.update(.01,g.player,g.renderer.camera,()=>{},()=>{});const wave2=g.enemies.remaining+g.enemies.active.length;
   g.enemies.pool.forEach(e=>e.die());g.enemies.remaining=1;const enemy=g.enemies.pool[0];enemy.spawn(g.player.position.clone().set(0,0,20),1);g.renderer.scene.updateMatrixWorld(true);let damage=0;const random=Math.random;try{Math.random=()=>0;for(let i=0;i<100;i++)g.enemies.update(.04,g.player,g.renderer.camera,n=>damage+=n,()=>{});}finally{Math.random=random;}
-  g.state='playing';g.player.hp=1;g.damage(100);const over=g.state==='over';g.start();const restart=g.state==='playing'&&g.player.hp===100&&g.enemies.kills===0&&g.weapons.shots===0;
+  g.state='playing';g.player.hp=1;g.damage(100);const over=g.state==='over';g.lobby.mode='survival';g.start();const restart=g.state==='playing'&&g.player.hp===100&&g.enemies.kills===0&&g.weapons.shots===0;
   return {guns,jump,crouch,heal,refill,wave1,wave2,enemyDamage:damage,over,restart};
  });
  for(const gun of result.guns){assert.ok(gun.automatic?gun.shots>2:gun.shots===1,gun.id);assert.equal(gun.ammo,gun.mag-gun.shots);assert.ok(gun.reloaded&&gun.conserved,gun.id+' reload');}
@@ -30,5 +30,5 @@ try {
  const context=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true});const mobile=await context.newPage();await mobile.goto('http://localhost:5174/?test=1');await mobile.waitForFunction(()=>!!window.__game);await mobile.locator('[data-tab="weapons"]').tap();
  const session=await context.newCDPSession(mobile);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:75,y:295}]});for(let i=1;i<=8;i++){await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:1,x:75,y:295-i*20}]});await mobile.waitForTimeout(30);}await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  result.mobileMenuScroll=await mobile.locator('.lobby-left').evaluate(el=>el.scrollTop);assert.ok(result.mobileMenuScroll>40,'Weapon store can scroll using touch');
- await writeFile('test-results/regression-v2.json',JSON.stringify(result,null,2));console.log('PASS: all 14 fire modes / reload, jump, crouch, pickups, AI damage, waves, restart, touch menu scroll');
+ await writeFile('test-results/regression-v2.json',JSON.stringify(result,null,2));console.log('PASS: all 16 fire modes / reload, jump, crouch, pickups, AI damage, waves, restart, touch menu scroll');
 } finally {await browser.close();}

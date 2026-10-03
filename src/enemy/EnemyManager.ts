@@ -13,15 +13,28 @@ export class EnemyManager {
     kills = 0;
     private ray = new T.Raycaster();
     private direction = new T.Vector3();
-    constructor(readonly scene: T.Scene, readonly map: BlueRoomMap, readonly audio: AudioManager) { this.pool = Array.from({ length: 15 }, (_, i) => new Enemy(i, scene)); }
+    constructor(readonly scene: T.Scene, readonly map: BlueRoomMap, readonly audio: AudioManager, count = 15, factory = (i: number) => new Enemy(i, scene)) { this.pool = Array.from({ length: count }, (_, i) => factory(i)); }
     get active() { return this.pool.filter(e => e.active); }
     reset() { this.pool.forEach(e => e.die()); this.wave = 0; this.remaining = 0; this.waveDelay = 0; this.spawnTimer = 0; this.kills = 0; }
     visible(a: T.Vector3, b: T.Vector3) { this.direction.subVectors(b, a); const distance = this.direction.length(); this.ray.set(a, this.direction.normalize()); this.ray.far = distance; return this.ray.intersectObjects(this.map.solids, false).length === 0; }
-    spawn(camera: T.PerspectiveCamera) { const available = this.map.spawns.filter(p => { if (p.distanceTo(camera.position) < 12)
-        return false; if (this.active.some(e => e.root.position.distanceTo(p) < 2))
-        return false; const target = p.clone().add(new T.Vector3(0, 1.5, 0)), screen = target.clone().project(camera); const inView = screen.z >= -1 && screen.z <= 1 && Math.abs(screen.x) < 1.2 && Math.abs(screen.y) < 1.2; return !inView || !this.visible(camera.position, target); }); if (!available.length)
-        return false; const e = this.pool.find(e => !e.active); if (!e)
-        return false; e.spawn(available[Math.floor(Math.random() * available.length)], this.wave); return true; }
+    spawn(camera: T.PerspectiveCamera) {
+        const available = this.map.spawns.filter(p => {
+            if (p.distanceTo(camera.position) < 12)
+                return false;
+            if (this.active.some(e => e.root.position.distanceTo(p) < 2))
+                return false;
+            const target = p.clone().add(new T.Vector3(0, 1.5, 0)), screen = target.clone().project(camera);
+            const inView = screen.z >= -1 && screen.z <= 1 && Math.abs(screen.x) < 1.2 && Math.abs(screen.y) < 1.2;
+            return !inView || !this.visible(camera.position, target);
+        });
+        if (!available.length)
+            return false;
+        const e = this.pool.find(e => !e.active);
+        if (!e)
+            return false;
+        e.spawn(available[Math.floor(Math.random() * available.length)], this.wave);
+        return true;
+    }
     update(dt: number, player: Player, camera: T.PerspectiveCamera, onDamage: (n: number) => void, onWave: (n: number) => void) {
         if (this.remaining === 0 && this.active.length === 0) {
             this.waveDelay -= dt;
@@ -39,7 +52,12 @@ export class EnemyManager {
             this.spawnTimer = .65;
         }
         for (const e of this.active) {
-            e.age += dt;e.slow=Math.max(0,e.slow-dt);e.reveal=Math.max(0,e.reveal-dt);e.outline.visible=e.reveal>0;e.lod.update(camera);e.lod.position.y=e.path.length?Math.sin(e.age*8)*.015:0;
+            e.age += dt;
+            e.slow = Math.max(0, e.slow - dt);
+            e.reveal = Math.max(0, e.reveal - dt);
+            e.outline.visible = e.reveal > 0;
+            e.lod.update(camera);
+            e.lod.position.y = e.path.length ? Math.sin(e.age * 8) * .015 : 0;
             e.think -= dt;
             e.attack -= dt;
             e.flash.visible = e.attack > 1.05 && e.attack < 1.12;
@@ -77,13 +95,13 @@ export class EnemyManager {
                 if (l < .25)
                     e.path.shift();
                 else {
-                    const speed = (e.state === 'CHASE' ? 2.5 : 1.65)*(e.slow>0?.3:1);
+                    const speed = (e.state === 'CHASE' ? 2.5 : 1.65) * (e.slow > 0 ? .3 : 1);
                     this.map.move(p, dx / l * speed * dt, dz / l * speed * dt, .43);
-                    p.y=this.map.groundAt(p.x,p.z);e.root.rotation.y = Math.atan2(dx, dz);
+                    p.y = this.map.groundAt(p.x, p.z);
+                    e.root.rotation.y = Math.atan2(dx, dz);
                     e.legs.forEach((leg, i) => leg.rotation.x = Math.sin(e.age * 8 + i * Math.PI) * .35);
                 }
             }
         }
     }
 }
-

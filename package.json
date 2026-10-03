@@ -1,6 +1,6 @@
 {
   "name": "twinkle-ops",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,7 +13,9 @@
     "test:pwa": "node tests/pwa.mjs",
     "test:webkit": "node tests/combat-v2.mjs",
     "test:mechanics": "node tests/regression-v2.mjs && node tests/combat-v2.mjs",
-    "test:live": "node tests/live.mjs"
+    "test:live": "node tests/live.mjs",
+    "assets:infected": "node scripts/build-infected.mjs",
+    "test:pve": "node tests/pve.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"

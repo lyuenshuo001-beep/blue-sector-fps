@@ -1,0 +1,1 @@
+import {chromium} from 'playwright';const b=await chromium.launch();const p=await b.newPage();console.log(await p.evaluate(()=>{const g=document.createElement('canvas').getContext('webgl2');if(!g)return {webgl:false};const e=g.getExtension('WEBGL_debug_renderer_info');return{renderer:e?g.getParameter(e.UNMASKED_RENDERER_WEBGL):g.getParameter(g.RENDERER)};}));await b.close();

@@ -29,7 +29,7 @@ export class Skills {
     lastCrouch = false;
     ray = new T.Raycaster();
     readonly times: Record<string, number[]> = { jiying: [22, 14, 10], tiansun: [14, 18, 22], yuehen: [18, 22, 24], shouwang: [20, 25, 30] };
-    constructor(readonly scene: T.Scene, readonly player: Player, readonly enemies: EnemyManager, readonly map: SkywardMap, readonly audio: AudioManager, readonly hurt: (e: Enemy, d: number) => void, readonly notify: (s: string) => void, readonly burst: (p: T.Vector3, color: number) => void) { for (let i = 0; i < 10; i++) {
+    constructor(readonly scene: T.Scene, readonly player: Player, public enemies: EnemyManager, readonly map: SkywardMap, readonly audio: AudioManager, readonly hurt: (e: Enemy, d: number) => void, readonly notify: (s: string) => void, readonly burst: (p: T.Vector3, color: number) => void) { for (let i = 0; i < 10; i++) {
         const mesh = new T.Mesh(new T.RingGeometry(.88, 1, 32), new T.MeshBasicMaterial({ color: 0x8cdeff, transparent: true, opacity: .6, side: T.DoubleSide, depthWrite: false }));
         mesh.rotation.x = -Math.PI / 2;
         mesh.visible = false;

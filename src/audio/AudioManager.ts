@@ -2,17 +2,22 @@ export class AudioManager {
     ctx: AudioContext | null = null;
     volume = .45;
     private noise: AudioBuffer | null = null;
-    init() { const Constructor = window.AudioContext || (window as unknown as {
-        webkitAudioContext?: typeof AudioContext;
-    }).webkitAudioContext; if (!Constructor)
-        return; if (!this.ctx) {
-        this.ctx = new Constructor();
-        this.noise = this.ctx.createBuffer(1, this.ctx.sampleRate * .25, this.ctx.sampleRate);
-        const d = this.noise.getChannelData(0);
-        for (let i = 0; i < d.length; i++)
-            d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
-    } void this.ctx.resume().catch(() => { }); }
-    play(kind: 'shot' | 'sniper' | 'enemy' | 'reload' | 'hit' | 'head' | 'kill' | 'ui' | 'step' | 'pickup',strength=1) {
+    init() {
+        const Constructor = window.AudioContext || (window as unknown as {
+            webkitAudioContext?: typeof AudioContext;
+        }).webkitAudioContext;
+        if (!Constructor)
+            return;
+        if (!this.ctx) {
+            this.ctx = new Constructor();
+            this.noise = this.ctx.createBuffer(1, this.ctx.sampleRate * .25, this.ctx.sampleRate);
+            const d = this.noise.getChannelData(0);
+            for (let i = 0; i < d.length; i++)
+                d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+        }
+        void this.ctx.resume().catch(() => { });
+    }
+    play(kind: 'shot' | 'sniper' | 'enemy' | 'reload' | 'hit' | 'head' | 'kill' | 'ui' | 'step' | 'pickup', strength = 1) {
         const c = this.ctx;
         if (!c || c.state !== 'running' || this.volume === 0)
             return;
@@ -41,5 +46,25 @@ export class AudioManager {
             o.start();
             o.stop(c.currentTime + dur);
         }
+    }
+    creature(kind: 'spit' | 'explode' | 'fuse' | 'pounce' | 'bite' | 'alarm' | 'groan') {
+        if (!this.ctx || this.volume === 0)
+            return;
+        const ctx = this.ctx, t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
+        const duration = kind === 'alarm' ? 1.4 : kind === 'explode' ? .8 : kind === 'pounce' ? .55 : .35;
+        o.type = kind === 'fuse' ? 'square' : 'sawtooth';
+        const hz = { spit: 180, explode: 72, fuse: 580, pounce: 330, bite: 95, alarm: 110, groan: 65 }[kind];
+        o.frequency.setValueAtTime(hz, t);
+        o.frequency.exponentialRampToValueAtTime(kind === 'pounce' ? 75 : Math.max(25, hz * .45), t + duration);
+        f.type = 'lowpass';
+        f.frequency.value = kind === 'explode' ? 280 : 900;
+        g.gain.setValueAtTime(this.volume * .12, t);
+        g.gain.exponentialRampToValueAtTime(.001, t + duration);
+        o.connect(f);
+        f.connect(g);
+        g.connect(ctx.destination);
+        o.start(t);
+        o.stop(t + duration);
+        o.onended = () => { o.disconnect(); f.disconnect(); g.disconnect(); };
     }
 }

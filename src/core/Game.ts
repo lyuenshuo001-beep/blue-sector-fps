@@ -1,3 +1,5 @@
+import { ZombiePool } from '../pve/ZombiePool';
+import { LastSector, GameMode } from '../pve/LastSector';
 import { Skills } from '../player/Skills';
 import { Profile } from './Profile';
 import { Lobby } from '../ui/Lobby';
@@ -21,7 +23,12 @@ export class Game {
     audio = new AudioManager();
     player = new Player();
     weapons = new WeaponManager(this.renderer.camera, this.audio);
-    enemies = new EnemyManager(this.renderer.scene, this.map, this.audio);
+    legacyEnemies = new EnemyManager(this.renderer.scene, this.map, this.audio);
+    zombies = new ZombiePool(this.renderer.scene, this.map, this.audio);
+    enemies: EnemyManager = this.legacyEnemies;
+    operation = new LastSector(this.renderer.scene, this.map);
+    mode: GameMode = 'survival';
+    normalBackground: T.Scene['background'] = this.renderer.scene.background;
     pickups = new Pickups(this.renderer.scene, this.map);
     effects = new HitEffect(this.renderer.scene);
     skills = new Skills(this.renderer.scene, this.player, this.enemies, this.map, this.audio, (e, d) => this.hitEnemy(e, d), s => this.hud.toast(s), (p, color) => this.effects.emit(p, this.renderer.quality === 'LOW' ? 4 : 10, color));
@@ -41,6 +48,8 @@ export class Game {
     constructor() {
         this.renderer.camera.position.set(9, 3, 15);
         this.renderer.camera.lookAt(-3, 1, -8);
+        this.zombies.hurtEnemy = (e, n) => this.hitEnemy(e, n);
+        this.zombies.notify = s => this.hud.toast(s);
         this.bind();
         this.loadSettings();
         this.renderer.gl.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); this.pause(); this.hud.toast('图形上下文中断，请刷新页面。'); });
@@ -60,15 +69,32 @@ export class Game {
         $('restart').onclick = () => this.start();
         $('resume').onclick = () => this.resume();
         $('pause-button').onclick = () => this.pause();
-        $('back-menu').onclick = () => { this.state = 'menu'; this.lobby.show('home'); $('gameover').classList.add('hidden'); $('menu').classList.remove('hidden'); $('hud').classList.add('hidden'); };
+        $('back-menu').onclick = () => { this.zombies.clear(); this.legacyEnemies.reset(); this.operation.group.visible = false; this.renderer.sun.intensity = 2.1; this.renderer.gl.toneMappingExposure = 1.25; this.renderer.scene.background = this.normalBackground; this.renderer.scene.fog = new T.Fog(0xb4d7e4, 55, 150); this.state = 'menu'; this.lobby.show('home'); $('gameover').classList.add('hidden'); $('menu').classList.remove('hidden'); $('hud').classList.add('hidden'); };
         $('settings-open').onclick = () => this.settings('menu');
         $('pause-settings').onclick = () => this.settings('pause');
         $('settings-close').onclick = () => { $('settings').classList.add('hidden'); $(this.settingsFrom).classList.remove('hidden'); this.audio.play('ui'); };
-        $<HTMLSelectElement>('quality').onchange = e => { this.renderer.setQuality((e.target as HTMLSelectElement).value as Quality); this.enemies.maxActive = this.renderer.quality === 'LOW' ? 8 : 15; this.saveSettings(); };
+        $<HTMLSelectElement>('quality').onchange = e => { this.renderer.setQuality((e.target as HTMLSelectElement).value as Quality); this.setEnemyBudget(); this.saveSettings(); };
         $<HTMLInputElement>('sensitivity').oninput = e => { this.input.sensitivity = Number((e.target as HTMLInputElement).value); this.saveSettings(); };
         $<HTMLInputElement>('volume').oninput = e => { this.audio.volume = Number((e.target as HTMLInputElement).value); this.saveSettings(); };
         if (/MicroMessenger/i.test(navigator.userAgent))
             $('wechat').classList.remove('hidden');
+        const interact = $('interact');
+        interact.onpointerdown = e => { if (this.state !== 'playing')
+            return; e.preventDefault(); interact.setPointerCapture(e.pointerId); this.operation.interact = true; };
+        interact.onpointerup = interact.onpointercancel = () => this.operation.interact = false;
+        $('struggle').onpointerdown = e => { if (this.state === 'playing') {
+            e.preventDefault();
+            this.zombies.struggle();
+        } };
+        addEventListener('keydown', e => { if (this.state !== 'playing' || e.repeat)
+            return; if (this.zombies.pinned && (e.code === 'KeyF' || e.code === 'Space')) {
+            e.preventDefault();
+            this.zombies.struggle();
+        }
+        else if (e.code === 'KeyF')
+            this.operation.interact = true; });
+        addEventListener('keyup', e => { if (e.code === 'KeyF')
+            this.operation.interact = false; });
         $('dismiss-wechat').onclick = () => $('wechat').classList.add('hidden');
     }
     loadSettings() {
@@ -86,8 +112,9 @@ export class Game {
             $<HTMLInputElement>('volume').value = String(this.audio.volume);
         }
         catch { }
-        this.enemies.maxActive = this.renderer.quality === 'LOW' ? 8 : 15;
+        this.setEnemyBudget();
     }
+    setEnemyBudget() { this.legacyEnemies.maxActive = this.renderer.quality === 'LOW' ? 8 : 15; this.zombies.maxActive = this.zombies.baseCap = this.renderer.quality === 'LOW' ? 20 : this.renderer.quality === 'HIGH' ? 42 : 30; this.zombies.low = this.renderer.quality === 'LOW'; this.zombies.nearBudget = this.zombies.low ? 4 : this.renderer.quality === 'HIGH' ? 12 : 8; this.zombies.zombies.forEach(z => z.lod.levels[1].distance = this.zombies.low ? 9 : 18); }
     saveSettings() {
         try {
             localStorage.setItem('blue-sector-settings', JSON.stringify({ quality: this.renderer.quality, sensitivity: this.input.sensitivity, volume: this.audio.volume }));
@@ -114,7 +141,53 @@ export class Game {
             }
         }
     }
-    start() { this.audio.init(); this.audio.play('ui'); this.input.reset(); this.input.crouch = false; this.input.pause = false; this.player.reset(); this.weapons.configureLoadout(this.profile); this.weapons.reset(); this.headshots = 0; this.settled = false; this.skills.reset(this.profile.data.operator); this.enemies.reset(); this.pickups.reset(); this.effects.reset(); this.elapsed = 0; this.step = 0; this.state = 'playing'; this.input.enabled = true; ['menu', 'gameover', 'pause', 'settings'].forEach(id => $(id).classList.add('hidden')); $('hud').classList.remove('hidden'); this.hud.toast('SKYWARD / 悬空城 · Q E X 技能 · Shift 冲刺'); this.capture(); }
+    start() {
+        this.mode = this.lobby.mode;
+        this.legacyEnemies.reset();
+        this.zombies.clear();
+        this.zombies.enabled = this.mode === 'last-sector';
+        this.enemies = this.zombies.enabled ? this.zombies : this.legacyEnemies;
+        this.skills.enemies = this.enemies;
+        this.operation.group.visible = this.zombies.enabled;
+        if (this.zombies.enabled)
+            this.operation.reset();
+        this.setEnemyBudget();
+        $('pve-objective').classList.toggle('hidden', !this.zombies.enabled);
+        $('struggle').classList.add('hidden');
+        $('interact').classList.add('hidden');
+        document.querySelector('.brand-small span')!.textContent = this.zombies.enabled ? '/ LAST SECTOR' : '/ SURVIVAL';
+        this.renderer.scene.background = this.zombies.enabled ? new T.Color(0x7b8d90) : this.normalBackground;
+        this.renderer.sun.intensity = this.zombies.enabled ? 1.05 : 2.1;
+        this.renderer.gl.toneMappingExposure = this.zombies.enabled ? .92 : 1.25;
+        this.renderer.scene.fog = new T.Fog(this.zombies.enabled ? 0x7b8d90 : 0xb4d7e4, this.zombies.enabled ? 22 : 55, this.zombies.enabled ? 85 : 150);
+        this.audio.init();
+        this.audio.play('ui');
+        this.input.reset();
+        this.input.crouch = false;
+        this.input.pause = false;
+        this.player.reset();
+        this.weapons.configureLoadout(this.profile);
+        this.weapons.reset();
+        this.headshots = 0;
+        this.settled = false;
+        this.skills.reset(this.profile.data.operator);
+        this.enemies.reset();
+        this.pickups.reset();
+        this.effects.reset();
+        this.elapsed = 0;
+        this.step = 0;
+        this.state = 'playing';
+        this.input.enabled = true;
+        ['menu', 'gameover', 'pause', 'settings'].forEach(id => $(id).classList.add('hidden'));
+        $('hud').classList.remove('hidden');
+        if (this.zombies.enabled) {
+            this.weapons.weapons.forEach(w => w.reserve = w.spec.reserve * 2);
+            this.hud.toast('LAST SECTOR · 启动电源、取样、守点、撤离');
+        }
+        else
+            this.hud.toast('SKYWARD / 悬空城 · Q E X 技能 · Shift 冲刺');
+        this.capture();
+    }
     pause() {
         if (this.state !== 'playing')
             return;
@@ -126,16 +199,28 @@ export class Game {
         $('pause').classList.remove('hidden');
     }
     resume() { this.audio.init(); this.state = 'playing'; this.input.enabled = true; this.input.pause = false; $('pause').classList.add('hidden'); this.capture(); }
-    hitEnemy(enemy: Enemy, damage: number, head = false) { if (!enemy.active)
-        return; enemy.hp -= damage; enemy.alert = 8; this.skills.mark(enemy); this.hud.hit(head); this.audio.play(head ? 'head' : 'hit'); if (enemy.hp <= 0) {
-        enemy.die();
-        this.enemies.kills++;
-        if (head)
-            this.headshots++;
-        this.skills.onKill();
-        this.hud.toast('路一号 eliminated' + (head ? ' · HEADSHOT' : ''));
-        this.audio.play('kill');
-    } }
+    hitEnemy(enemy: Enemy, damage: number, head = false) {
+        if (!enemy.active)
+            return;
+        enemy.hp -= damage;
+        enemy.alert = 8;
+        this.skills.mark(enemy);
+        this.hud.hit(head);
+        this.audio.play(head ? 'head' : 'hit');
+        if (enemy.hp <= 0) {
+            enemy.die();
+            if (this.zombies.enabled)
+                this.zombies.onDeath(enemy, this.player.position);
+            this.enemies.kills++;
+            if (head)
+                this.headshots++;
+            this.skills.onKill();
+            this.hud.toast('路一号 eliminated' + (head ? ' · HEADSHOT' : ''));
+            this.audio.play('kill');
+            if (this.zombies.enabled && this.enemies.kills % 3 === 0)
+                this.hud.toast(this.enemies.kills % 9 === 0 ? 'MASSACRE / 尸群瓦解' : 'MULTI KILL / 连续击杀');
+        }
+    }
     shoot(spread: number) {
         const camera = this.renderer.camera;
         camera.updateMatrixWorld(true);
@@ -154,7 +239,11 @@ export class Game {
             if (enemy?.active) {
                 hitEnemy = true;
                 const falloff = hit.distance <= w.range ? 1 : Math.max(.25, 1 - (hit.distance - w.range) / (w.range * 1.5));
-                this.hitEnemy(enemy, w.damage * falloff * (head ? w.headshot : 1), head);
+                this.hitEnemy(enemy, w.damage * falloff * (head ? w.headshot : hit.object.userData.weak ? 3.5 : 1), head);
+                if (hit.object.userData.weak) {
+                    $('hitmarker').textContent = '× CRITICAL';
+                    $('hitmarker').className = 'headshot';
+                }
             }
         }
         if (hitEnemy)
@@ -173,9 +262,26 @@ export class Game {
         if (this.player.hp === 0)
             this.over();
     }
-    over() { if (this.settled)
-        return; this.settled = true; this.state = 'over'; this.input.enabled = false; this.input.reset(); document.exitPointerLock?.(); $('gameover').classList.remove('hidden'); const time = Math.floor(this.elapsed), accuracy = this.weapons.shots ? Math.min(100, Math.round(this.weapons.hits / this.weapons.shots * 100)) : 0, earned = this.profile.award(this.enemies.kills, this.headshots, this.enemies.wave, time); $('results').innerHTML = [['KILLS', this.enemies.kills], ['HEADSHOTS', this.headshots], ['WAVE', this.enemies.wave], ['ACCURACY', accuracy + '%'], ['SURVIVAL', Math.floor(time / 60) + ':' + String(time % 60).padStart(2, '0')], ['CREDITS EARNED', '+' + earned]].map(([label, value]) => '<div><span>' + label + '</span><b>' + value + '</b></div>').join(''); }
-    updateHud() { const w = this.weapons.current; $('scope').dataset.reticle = w.attachments.scope; $('crosshair').dataset.reticle = this.input.ads ? w.attachments.scope : 'hip'; document.querySelector('.sector-label span')!.textContent = ' / ' + this.map.zone(this.player.position); $('wave').textContent = String(this.enemies.wave).padStart(2, '0'); $('enemies').textContent = String(this.enemies.active.length + this.enemies.remaining); $('kills').textContent = String(this.enemies.kills); $('hp').textContent = String(Math.ceil(this.player.hp)); $('hp-bar').style.width = this.player.hp + '%'; $('hp-bar').style.background = this.player.hp < 30 ? '#ff795f' : '#88e8ff'; $('weapon').textContent = w.spec.id; $('weapon-type').textContent = w.spec.name; $('ammo').textContent = String(w.ammo); $('reserve').textContent = String(w.reserve); $('reload-status').textContent = this.weapons.reloadLeft > 0 ? 'RELOADING ' + this.weapons.reloadLeft.toFixed(1) + 's' : w.ammo === 0 ? 'RELOAD / R' : 'READY'; $('crosshair').style.setProperty('--gap', (this.input.ads ? 2 : 5 + (this.player.moving ? 5 : 0) + this.weapons.bloom * 9) + 'px'); $('scope').style.display = this.input.ads && ['2x', '4x', 'sniper'].includes(w.attachments.scope) ? 'block' : 'none'; document.querySelector('[data-action="ads"]')!.classList.toggle('active', this.input.ads); document.querySelector('[data-action="crouch"]')!.classList.toggle('active', this.input.crouch); $('perf').textContent = `${Math.round(this.fps)} FPS / ${this.renderer.quality}${this.renderer.adaptive ? ' · AUTO SCALE' : ''}`; }
+    over() {
+        if (this.settled)
+            return;
+        this.settled = true;
+        this.state = 'over';
+        this.input.enabled = false;
+        this.input.reset();
+        document.exitPointerLock?.();
+        $('gameover').classList.remove('hidden');
+        $('struggle').classList.add('hidden');
+        $('interact').classList.add('hidden');
+        document.querySelector('#gameover h2')!.textContent = this.zombies.enabled && this.operation.complete ? 'MISSION COMPLETE' : 'GAME OVER';
+        const time = Math.floor(this.elapsed), accuracy = this.weapons.shots ? Math.min(100, Math.round(this.weapons.hits / this.weapons.shots * 100)) : 0, earned = this.profile.award(this.enemies.kills, this.headshots, this.enemies.wave, time) + (this.zombies.enabled ? this.operation.stage * 100 + (this.operation.complete ? 500 : 0) : 0);
+        if (this.zombies.enabled) {
+            this.profile.data.credits += this.operation.stage * 100 + (this.operation.complete ? 500 : 0);
+            this.profile.save();
+        }
+        $('results').innerHTML = [['KILLS', this.enemies.kills], ['HEADSHOTS', this.headshots], ['WAVE', this.enemies.wave], ['ACCURACY', accuracy + '%'], ['SURVIVAL', Math.floor(time / 60) + ':' + String(time % 60).padStart(2, '0')], ['CREDITS EARNED', '+' + earned]].map(([label, value]) => '<div><span>' + label + '</span><b>' + value + '</b></div>').join('');
+    }
+    updateHud() { const w = this.weapons.current; $('scope').dataset.reticle = w.attachments.scope; $('crosshair').dataset.reticle = this.input.ads ? w.attachments.scope : 'hip'; document.querySelector('.sector-label span')!.textContent = (this.zombies.enabled ? ' / 隔离前哨 · ' : ' / ') + this.map.zone(this.player.position); $('wave').textContent = String(this.enemies.wave).padStart(2, '0'); $('enemies').textContent = String(this.enemies.active.length + this.enemies.remaining); $('kills').textContent = String(this.enemies.kills); $('hp').textContent = String(Math.ceil(this.player.hp)); $('hp-bar').style.width = this.player.hp + '%'; $('hp-bar').style.background = this.player.hp < 30 ? '#ff795f' : '#88e8ff'; $('weapon').textContent = w.spec.id; $('weapon-type').textContent = w.spec.name; $('ammo').textContent = String(w.ammo); $('reserve').textContent = String(w.reserve); $('reload-status').textContent = this.weapons.reloadLeft > 0 ? 'RELOADING ' + this.weapons.reloadLeft.toFixed(1) + 's' : w.ammo === 0 ? 'RELOAD / R' : 'READY'; $('crosshair').style.setProperty('--gap', (this.input.ads ? 2 : 5 + (this.player.moving ? 5 : 0) + this.weapons.bloom * 9) + 'px'); $('scope').style.display = this.input.ads && ['2x', '4x', 'sniper'].includes(w.attachments.scope) ? 'block' : 'none'; document.querySelector('[data-action="ads"]')!.classList.toggle('active', this.input.ads); document.querySelector('[data-action="crouch"]')!.classList.toggle('active', this.input.crouch); $('perf').textContent = `${Math.round(this.fps)} FPS / ${this.renderer.quality}${this.renderer.adaptive ? ' · AUTO SCALE' : ''}`; }
     loop(now: number) {
         requestAnimationFrame(t => this.loop(t));
         const raw = this.last ? (now - this.last) / 1000 : 1 / 60, dt = Math.min(raw, .04);
@@ -190,14 +296,33 @@ export class Game {
             this.elapsed += dt;
             this.skills.update(dt, this.input, this.renderer.camera);
             this.player.mobility = this.weapons.current.spec.mobility;
+            if (this.zombies.enabled && this.zombies.pinned) {
+                this.player.speedBoost = 0;
+                this.input.jump = false;
+            }
             this.player.update(dt, this.input, this.map, this.renderer.camera);
+            if (this.zombies.enabled && this.zombies.pinned)
+                this.renderer.camera.position.y = this.player.position.y + .55;
             this.weapons.update(dt, this.input, this.player, s => this.shoot(s));
             this.renderer.scene.updateMatrixWorld(true);
+            this.zombies.ammoRatio = Math.min(1, (this.weapons.current.ammo + this.weapons.current.reserve) / Math.max(1, this.weapons.current.spec.magazine * 3));
             this.enemies.update(dt, this.player, this.renderer.camera, n => this.damage(n), n => { this.hud.wave(n); this.audio.play('ui'); });
             if (this.state !== 'playing') {
                 this.updateHud();
                 this.renderer.render();
                 return;
+            }
+            if (this.zombies.enabled) {
+                this.operation.update(dt, this.player, s => this.hud.toast(s));
+                $('struggle').classList.toggle('hidden', !this.zombies.pinned);
+                $('struggle').textContent = '挣脱 TAP! ' + this.zombies.escapeTaps + '/5';
+                const shake = this.zombies.fx.shake;
+                this.renderer.camera.rotation.z += (Math.random() - .5) * shake * .08;
+                this.renderer.camera.rotation.x += (Math.random() - .5) * shake * .025;
+                if (this.operation.complete) {
+                    this.over();
+                    return;
+                }
             }
             this.pickups.update(dt, this.player, this.weapons, s => { this.hud.toast(s); this.audio.play('pickup'); });
             this.effects.update(dt);
@@ -209,6 +334,8 @@ export class Game {
                 }
             }
             this.renderer.adapt(Math.min(raw, .1));
+            if (this.zombies.enabled)
+                this.zombies.adapt(raw);
             this.hud.update(dt);
             if (now - this.lastHud > 70) {
                 this.updateHud();

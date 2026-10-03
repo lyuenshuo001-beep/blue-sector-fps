@@ -1,0 +1,5 @@
+Original infected models, animation and textures generated for TWINKLE OPS.
+Generated asset files in this directory: CC0 1.0 Universal.
+https://creativecommons.org/publicdomain/zero/1.0/
+Generator: scripts/build-infected.mjs
+No third-party game models or textures are included.

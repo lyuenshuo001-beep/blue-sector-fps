@@ -2,20 +2,32 @@
 
 **游戏网址：[点击进入闪烁行动](https://lyuenshuo001-beep.github.io/blue-sector-fps/)**
 
-[完整源码仓库](https://github.com/lyuenshuo001-beep/blue-sector-fps)。原 BLUE SECTOR 项目的第二版，沿用移动、射击、波次、触屏和 PWA 基础。无需账号、App 或后端。阿里云暂未启用；GitHub Pages 的大陆微信真实网络可达性仍需实测。
+[完整源码仓库](https://github.com/lyuenshuo001-beep/blue-sector-fps)。原 BLUE SECTOR 项目的持续升级版，沿用移动、射击、波次、触屏和 PWA 基础。无需账号、App 或后端。阿里云暂未启用；GitHub Pages 的大陆微信真实网络可达性仍需实测。
 
-## 这次升级
+## LAST SECTOR / 绝境行动首发阶段
+
+新增单人 PVE：普通感染者、腐液者、爆裂者、扑袭者，独立蒙皮 GLB、动画和纹理。可躲避的毒液弹与毒区、感染囊弱点和连锁爆炸、扑倒与 F / Space / 手机 TAP 挣脱，均已接入实际战斗。
+
+**模式路线：启动电源 → 取回样本 → 守住上传终端 → 返回安全屋坚守 60 秒撤离。** 本次先开放复用悬空城基础空间的“隔离前哨”，最终大型隔离区、Boss 和后续特殊感染体仍在后续阶段，未宣称完成。
+
+LOW / MEDIUM / HIGH 同时上限 20 / 30 / 42，48 个预分配实体池，持续低帧率时仅减缓新生成。近景高细节模型另设 4 / 8 / 12 的数量预算，其余保留低细节骨骼模型。尸体、毒液、毒区和粒子均复用。
+
+M249 免费解锁，100 发弹匣。旧武器 ID、解锁与配件自动迁移到新名称。经典悬空城模式继续保留。
+
+详细玩法及本阶段边界：[docs/LAST_SECTOR.md](docs/LAST_SECTOR.md)。原创模型与武器资料来源：[ASSET_LICENSES.md](ASSET_LICENSES.md)。
+
+## 现有基础系统
 
 - 原创 **SKYWARD / 悬空城**：约 66 × 74 米，明亮古城、中央钟楼、拱门、A 区喷泉、B 区维修室、市场、花园、可走上去的高台与侧路。7 个出生点、6 处 Twinkle 彩蛋。
 - 程序化石材、砖、灰泥、木、金属和橡胶表面；本地生成 Base Color / Normal / Roughness，金属度区分材质。没有游戏素材提取或运行时 CDN。
-- 14 把原创命名武器，完整枪身、枪管、导轨、枪托、扳机护圈、弹匣及瞄具；不同射速、伤害、射程、散布、移动倍率和后坐力。保留换弹、开镜、摆动和射击反馈。
+- 16 把真实／指定名称武器，完整枪身、枪管、导轨、枪托、扳机护圈、弹匣及瞄具；不同射速、伤害、射程、散布、移动倍率和后坐力。保留换弹、开镜、摆动和射击反馈。
 - 大厅、可拖动 3D 武器预览、Credits 商店、主副武器配装、枪口／握把／弹匣／倍镜改装。
 - 疾影、天隼、月痕、守望四名原创干员，各三个技能，有冷却和效果。敌人仍叫 **路一号**。
 - 本地保存 Credits、解锁、配装、干员、最佳成绩和画质。单人 Wave Survival，不提供联网多人。
 
 ## 开始游戏
 
-大厅 → 开始游戏 → 选择干员 → 下一步配装 → START。初始免费 AR-01 + PX-12，其余使用游戏 Credits 解锁，无真实付费。配件本版免费。
+大厅 → 开始游戏 → 选择模式 → 选择干员 → 下一步配装 → START。初始免费 M4A1、G17、M249，其余使用游戏 Credits 解锁，无真实付费。配件本版免费。
 
 | PC 操作 | 功能 |
 |---|---|
@@ -36,7 +48,7 @@
 | 月痕 | 落点侦察扫描 | 持续电弧伤害 | 近域敌情标记；命中也会标记 |
 | 守望 | 范围恢复生命 | 近域减伤装置 | 60 点临时护甲 |
 
-武器：AR-01、AR-02、KA-47、CB-7、SMG-9、VX-45、CX-6、SR-50、BA-90、DMR-21、SG-8、SG-12、PX-12、HP-45。详细平衡参数见 `src/weapons/Catalog.ts`。
+武器：M4A1、K416、AKM、MCX LT、MP5、Vector、MP7、AWM、M700、SR-25、M870、M1014、G17、Desert Eagle、AK-12、M249。详细平衡参数见 `src/weapons/Catalog.ts`。
 
 倍镜支持机械、红点、全息、2×、4×、7×，真实修改相机 FOV，并切换模型与准星。消焰补偿器与垂直握把降低纵向后坐力，斜握把改善横向后坐力及 ADS 速度，消音器减弱声音／火焰但缩短射程，扩容弹匣例如 30→40，换弹变慢。
 
@@ -59,11 +71,11 @@ npm.cmd test
 npm.cmd run preview
 ```
 
-`dist/` 是完整静态站点。运行时不向国外 CDN、Google、模型或音频服务器取资源。当前构建约 **0.65 MB 未压缩**，贴图／几何／声音在本机生成；没有为压缩引入额外远程解码器。
+`dist/` 是完整静态站点。运行时不向国外 CDN、Google、模型或音频服务器取资源。当前构建约 **4 MB 未压缩**，包含本地 GLB 感染者和贴图，其他地图／武器／音效由代码生成；没有为压缩引入额外远程解码器。
 
 ## 性能
 
-静态几何按材质合并，植被使用 InstancedMesh，敌人近／远 LOD、视锥裁剪及最多 15 名对象池，技能和命中特效复用。没有实体子弹、重型后处理或大量动态灯。
+经典模式：静态几何按材质合并，植被使用 InstancedMesh，敌人近／远 LOD、视锥裁剪及最多 15 名对象池，技能和命中特效复用。没有实体子弹、重型后处理或大量动态灯。
 
 | 设置 | 像素比上限 | 最大同时敌人 | 阴影 |
 |---|---|---|---|
@@ -83,6 +95,8 @@ npm.cmd run build
 npm.cmd test
 npm.cmd run test:browser
 npm.cmd run test:mechanics
+npm.cmd run test:pve
+node tests/pve-platform.mjs
 npm.cmd run test:pwa
 npm.cmd run test:live
 ```
@@ -95,7 +109,7 @@ npm.cmd run test:live
 
 仓库 Settings → Pages → Source 设为 **GitHub Actions**。`.github/workflows/deploy-github.yml` 在 push main 时自动 npm ci → build → test → 部署。仓库名称和网址继续保留 blue-sector-fps，游戏品牌改为闪烁行动，不必让朋友更换收藏。
 
-Vite `base: './'`，同一 dist 支持仓库子目录及独立域名根目录。旧版保存在 **blue-sector-v1-stable** 标签；升级开发分支为 **upgrade/twinkle-ops**。需要回退时可从标签创建修复分支，通过常规提交恢复旧内容并发布，不要强制覆盖远端历史。
+Vite `base: './'`，同一 dist 支持仓库子目录及独立域名根目录。旧版保存在 **blue-sector-v1-stable** 标签；升级开发分支为 **upgrade/twinkle-ops**。本次 PVE 前另保存 twinkle-ops-pre-last-sector，开发分支 feature/last-sector。需要回退时可从标签创建修复分支，通过常规提交恢复旧内容并发布，不要强制覆盖远端历史。
 
 ## PWA、微信与大陆部署
 
@@ -110,3 +124,5 @@ Vite `base: './'`，同一 dist 支持仓库子目录及独立域名根目录。
 `src/world` 地图与材质；`src/weapons` 参数、模型与武器状态；`src/player` 移动及技能；`src/core` 输入、存档与游戏循环；`src/ui` 大厅/HUD；`src/enemy` 士兵模型、AI与波次；`src/audio` 合成音效。保留原 BlueRoomMap 基础接口，新增 SkywardMap，没有另建替代项目。
 
 素材来源、独立布局和设计参考见 [docs/ASSETS.md](docs/ASSETS.md)。
+
+本阶段测试报告与性能限制：[PVE 验收记录](docs/ACCEPTANCE_PVE.md)。
