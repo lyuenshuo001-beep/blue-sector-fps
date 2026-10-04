@@ -1,0 +1,11 @@
+{
+  "pass": true,
+  "checks": [
+    "GLB skinning",
+    "PVE mode flow",
+    "ADS",
+    "fire",
+    "touch escape"
+  ],
+  "errors": []
+}

@@ -4,17 +4,17 @@
 
 [完整源码仓库](https://github.com/lyuenshuo001-beep/blue-sector-fps)。原 BLUE SECTOR 项目的持续升级版，沿用移动、射击、波次、触屏和 PWA 基础。无需账号、App 或后端。阿里云暂未启用；GitHub Pages 的大陆微信真实网络可达性仍需实测。
 
-## LAST SECTOR / 绝境行动首发阶段
+## LAST SECTOR / 绝境行动：线性战役 2.2
 
-新增单人 PVE：普通感染者、腐液者、爆裂者、扑袭者，独立蒙皮 GLB、动画和纹理。可躲避的毒液弹与毒区、感染囊弱点和连锁爆炸、扑倒与 F / Space / 手机 TAP 挣脱，均已接入实际战斗。
+独立隔离区关卡，实际导航路线约 528 米：安全屋、街区、医院二楼、屋顶通道、地下停车场、发电机尸潮、防爆门、实验室、停电收容区、TITAN、最终撤离。十个目标配有路口导航、距离、地面任务区域和原创本地指挥语音。
 
-**模式路线：启动电源 → 取回样本 → 守住上传终端 → 返回安全屋坚守 60 秒撤离。** 本次先开放复用悬空城基础空间的“隔离前哨”，最终大型隔离区、Boss 和后续特殊感染体仍在后续阶段，未宣称完成。
+四名干员中选择一个 AI 队友；跟随、有限火力与支援、倒地 45 秒窗口和长按 4 秒救援。普通感染者三种基础外形，七类特殊感染体及 TITAN。保留毒液弹、连爆、扑倒与挣脱。
 
-LOW / MEDIUM / HIGH 同时上限 20 / 30 / 42，48 个预分配实体池，持续低帧率时仅减缓新生成。近景高细节模型另设 4 / 8 / 12 的数量预算，其余保留低细节骨骼模型。尸体、毒液、毒区和粒子均复用。
+新增手机 HUD 拖动编辑、独立大小／透明度、本地保存；动态准心、轻微移动起伏、低掩体自动翻越、暂停确认返回大厅。枪声采用分层原创合成，33 条本地语音加入任务／队友／技能／关键连杀，语音与枪声音量分别可调。
 
-M249 免费解锁，100 发弹匣。旧武器 ID、解锁与配件自动迁移到新名称。经典悬空城模式继续保留。
+M249 仍免费，旧配装与 Credits 存档保留。经典悬空城增加室内捷径和五类敌人，旧模式可继续玩。
 
-详细玩法及本阶段边界：[docs/LAST_SECTOR.md](docs/LAST_SECTOR.md)。原创模型与武器资料来源：[ASSET_LICENSES.md](ASSET_LICENSES.md)。
+完整操作：[战役说明](docs/CAMPAIGN.md)。实际结果与性能限制：[战役验收](docs/ACCEPTANCE_CAMPAIGN.md)。软件渲染压测未达到 30 FPS，Android／iPhone 真机及大陆微信网络仍待实测，不声称已经达标。
 
 ## 现有基础系统
 
@@ -71,7 +71,7 @@ npm.cmd test
 npm.cmd run preview
 ```
 
-`dist/` 是完整静态站点。运行时不向国外 CDN、Google、模型或音频服务器取资源。当前构建约 **4 MB 未压缩**，包含本地 GLB 感染者和贴图，其他地图／武器／音效由代码生成；没有为压缩引入额外远程解码器。
+`dist/` 是完整静态站点。运行时不向国外 CDN、Google、模型或音频服务器取资源。当前构建约 **13.4 MB 未压缩**，包含本地 GLB 感染者、贴图与 33 条语音，地图／武器／枪声音效由代码生成；没有为压缩引入额外远程解码器。
 
 ## 性能
 
@@ -96,6 +96,8 @@ npm.cmd test
 npm.cmd run test:browser
 npm.cmd run test:mechanics
 npm.cmd run test:pve
+npm.cmd run test:campaign
+node tests/campaign-lifecycle.mjs
 node tests/pve-platform.mjs
 npm.cmd run test:pwa
 npm.cmd run test:live
@@ -109,7 +111,7 @@ npm.cmd run test:live
 
 仓库 Settings → Pages → Source 设为 **GitHub Actions**。`.github/workflows/deploy-github.yml` 在 push main 时自动 npm ci → build → test → 部署。仓库名称和网址继续保留 blue-sector-fps，游戏品牌改为闪烁行动，不必让朋友更换收藏。
 
-Vite `base: './'`，同一 dist 支持仓库子目录及独立域名根目录。旧版保存在 **blue-sector-v1-stable** 标签；升级开发分支为 **upgrade/twinkle-ops**。本次 PVE 前另保存 twinkle-ops-pre-last-sector，开发分支 feature/last-sector。需要回退时可从标签创建修复分支，通过常规提交恢复旧内容并发布，不要强制覆盖远端历史。
+Vite `base: './'`，同一 dist 支持仓库子目录及独立域名根目录。旧版保存在 **blue-sector-v1-stable** 标签；升级开发分支为 **upgrade/twinkle-ops**。PVE 首发前保存 twinkle-ops-pre-last-sector；本次战役前保存 twinkle-ops-pre-campaign，开发分支 feature/linear-campaign。需要回退时可从标签创建修复分支，通过常规提交恢复旧内容并发布，不要强制覆盖远端历史。
 
 ## PWA、微信与大陆部署
 
@@ -125,4 +127,4 @@ Vite `base: './'`，同一 dist 支持仓库子目录及独立域名根目录。
 
 素材来源、独立布局和设计参考见 [docs/ASSETS.md](docs/ASSETS.md)。
 
-本阶段测试报告与性能限制：[PVE 验收记录](docs/ACCEPTANCE_PVE.md)。
+本阶段测试报告与性能限制：[战役验收记录](docs/ACCEPTANCE_CAMPAIGN.md)。

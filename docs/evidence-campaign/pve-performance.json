@@ -1,0 +1,29 @@
+{
+  "device": "Desktop Chromium SwiftShader, NOT a physical phone FPS measurement",
+  "samples": [
+    {
+      "quality": "LOW",
+      "active": 20,
+      "averageFPS": 11.2,
+      "p95FrameMs": 233.4,
+      "drawCalls": 104,
+      "triangles": 65272
+    },
+    {
+      "quality": "MEDIUM",
+      "active": 30,
+      "averageFPS": 8,
+      "p95FrameMs": 233.4,
+      "drawCalls": 136,
+      "triangles": 154134
+    },
+    {
+      "quality": "HIGH",
+      "active": 42,
+      "averageFPS": 7.7,
+      "p95FrameMs": 216.6,
+      "drawCalls": 155,
+      "triangles": 217278
+    }
+  ]
+}

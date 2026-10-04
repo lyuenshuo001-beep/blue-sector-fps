@@ -5,8 +5,8 @@ const bodyMaterial = new T.MeshStandardMaterial({ color: 0xb2634f, roughness: .7
 const armorMaterial = new T.MeshStandardMaterial({ color: 0x34434d });
 const redMaterial = new T.MeshBasicMaterial({ color: 0xff7052 });
 const bodyGeo = new T.BoxGeometry(.7, .85, .4), headGeo = new T.BoxGeometry(.44, .4, .42), limbGeo = new T.BoxGeometry(.23, .55, .25);
-let nameMaterial: T.SpriteMaterial;
-function labelMaterial() {
+let nameMaterial: T.SpriteMaterial;const names=new Map<string,T.SpriteMaterial>();
+function labelMaterial(role:string) {nameMaterial=names.get(role)!;
     if (!nameMaterial) {
         const c = document.createElement('canvas');
         c.width = 256;
@@ -17,14 +17,15 @@ function labelMaterial() {
         ctx.fillStyle = '#ffe4d6';
         ctx.font = 'bold 36px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('路一号', 128, 45);
+        ctx.font='bold 23px sans-serif';ctx.fillText('路一号 · '+role, 128, 45);
         const map = new T.CanvasTexture(c);
         map.colorSpace = T.SRGBColorSpace;
         nameMaterial = new T.SpriteMaterial({ map, depthTest: true });
     }
-    return nameMaterial;
+    names.set(role,nameMaterial);return nameMaterial;
 }
 export class Enemy {
+    role='步枪兵';
     root = new T.Group();
     body: T.Mesh;
     head: T.Mesh;
@@ -43,6 +44,7 @@ export class Enemy {
     alert = 0;
     flash: T.Mesh;
     constructor(readonly id: number, scene: T.Scene, visuals = true) {
+        this.role=['步枪兵','狙击手','重机枪','突击兵','精英'][id%5];
         this.body = new T.Mesh(bodyGeo, bodyMaterial);
         this.body.position.y = 1.05;
         this.head = new T.Mesh(headGeo, armorMaterial);
@@ -70,7 +72,7 @@ export class Enemy {
         this.flash.position.set(.37, 1.08, .68);
         this.flash.visible = false;
         this.root.add(this.flash);
-        const label = new T.Sprite(labelMaterial());
+        const label = new T.Sprite(labelMaterial(this.role));
         label.position.y = 2.2;
         label.scale.set(1.35, .34, 1);
         this.root.add(label);
@@ -82,12 +84,12 @@ export class Enemy {
             if (o instanceof T.Mesh && o !== this.flash)
                 o.material = hidden;
         if (visuals) {
-            const near = soldierModel(0xb97957);
+            const near = soldierModel([0xb97957,0x727e67,0x827564,0x9c695d,0x514d66][id%5]);
             const far = new T.Group();
             const farBody = new T.Mesh(new T.CapsuleGeometry(.32, 1.1, 2, 5), new T.MeshStandardMaterial({ color: 0xbb7154, roughness: 1 }));
             farBody.position.y = 1;
             far.add(farBody);
-            this.lod.addLevel(near, 0);
+            if(this.role==='重机枪')near.scale.set(1.18,1.05,1.15);if(this.role==='狙击手')near.scale.set(.9,1.04,.9);this.lod.addLevel(near, 0);
             this.lod.addLevel(far, 24);
             this.root.add(this.lod);
         }
@@ -98,7 +100,7 @@ export class Enemy {
         this.root.add(this.outline);
         scene.add(this.root);
     }
-    spawn(p: T.Vector3, wave: number) { this.root.position.copy(p); this.root.visible = true; this.active = true; this.hp = 100 + Math.min(45, (wave - 1) * 3); this.state = 'IDLE'; this.path = []; this.age = 0; this.think = 0; this.attack = 1.4; this.alert = 0; this.slow = 0; this.reveal = 0; this.outline.visible = false; }
+    spawn(p: T.Vector3, wave: number) { this.root.position.copy(p); this.root.visible = true; this.active = true; this.hp = (this.role==='重机枪'?170:this.role==='精英'?145:this.role==='突击兵'?80:100) + Math.min(45, (wave - 1) * 3); this.state = 'IDLE'; this.path = []; this.age = 0; this.think = 0; this.attack = 1.4; this.alert = 0; this.slow = 0; this.reveal = 0; this.outline.visible = false; }
     die() { this.active = false; this.state = 'DEAD'; this.root.visible = false; }
     get hitboxes() { return this.root.children.filter(o => o.userData.enemy); }
 }

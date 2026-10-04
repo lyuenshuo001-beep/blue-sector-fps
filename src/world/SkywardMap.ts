@@ -9,15 +9,20 @@ export class SkywardMap extends BlueRoomMap {
         m: T.Material;
         mat: T.Matrix4;
     }[] = [];
-    readonly name = 'SKYWARD / 悬空城';
+    readonly name: string = 'SKYWARD / 悬空城';
     readonly secrets: T.Vector3[] = [];
-    constructor(scene: T.Scene) {
-        super(scene, false);
+    constructor(scene: T.Scene, build=true) {
+        super(scene, false); if(!build)return;
         this.spawns = [[-25, -29], [27, -29], [-28, 5], [28, 20], [0, -34], [-22, 28], [22, -17]].map(([x, z]) => new T.Vector3(x, this.groundAt(x, z), z));
         this.addBox(0, -.4, 0, 66, .8, 74, 'stone', 0xb4b0a2, false);
         // Original three-lane plan: staggered solid buildings with broad transverse links.
         this.building(-13, 15, 12, 13, 8, 0xe8c9a4);
-        this.building(14, 18, 12, 10, 7, 0xe5b9a0);
+        // East building becomes an enterable two-door service hall, joining south and middle lanes.
+        for(const x of [8,20])this.addBox(x,3.5,18,.5,7,10,'plaster',0xe5b9a0);
+        for(const z of [13,23])for(const x of [9.5,18.5])this.addBox(x,3.5,z,3,7,.5,'brick',0xb58d79);
+        this.addBox(14,7,18,12,.35,10,'wood',0x706354,false);
+        this.addBox(12,1,18,2,2,3,'metal',0x56656b);
+        this.sign('EAST SERVICE / 捷径',14,3.8,23.3,5,.7);
         this.building(-13, -13, 10, 13, 8.5, 0xd7bc8e);
         this.building(13, -17, 11, 11, 9, 0xdba998);
         this.building(0, -28, 8, 9, 13, 0xe7d6b1);
@@ -133,7 +138,7 @@ export class SkywardMap extends BlueRoomMap {
         if (z > 12 && z <= 20)
             return (20 - z) * .3;
     } return 0; }
-    zone(p: T.Vector3) { return p.x < -17 ? (p.z < 0 ? 'A / FONTANA' : p.z < 18 ? 'MARKET' : 'GARDEN') : p.x > 16 ? (p.z < 4 ? 'B / WORKSHOP' : p.z < 20 ? 'BALCONY' : 'EAST LINK') : 'MID / CLOCK PLAZA'; }
+    zone(p: T.Vector3): string { return p.x < -17 ? (p.z < 0 ? 'A / FONTANA' : p.z < 18 ? 'MARKET' : 'GARDEN') : p.x > 16 ? (p.z < 4 ? 'B / WORKSHOP' : p.z < 20 ? 'BALCONY' : 'EAST LINK') : 'MID / CLOCK PLAZA'; }
     part(g: T.BufferGeometry, m: T.Material) { if (g.index) {
         const old = g;
         g = g.toNonIndexed();

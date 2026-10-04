@@ -32,7 +32,7 @@ export class EnemyManager {
         const e = this.pool.find(e => !e.active);
         if (!e)
             return false;
-        e.spawn(available[Math.floor(Math.random() * available.length)], this.wave);
+        const high=available.filter(p=>p.y>1);e.spawn(e.role==='狙击手'&&high.length?high[0]:available[Math.floor(Math.random() * available.length)], this.wave);
         return true;
     }
     update(dt: number, player: Player, camera: T.PerspectiveCamera, onDamage: (n: number) => void, onWave: (n: number) => void) {
@@ -62,14 +62,15 @@ export class EnemyManager {
             e.attack -= dt;
             e.flash.visible = e.attack > 1.05 && e.attack < 1.12;
             const p = e.root.position, dist = p.distanceTo(player.position);
+            if(e.role==='精英'&&e.state==='ATTACK'&&e.age%5<.65){const side=e.id%2?1:-1;this.map.move(p,Math.cos(e.root.rotation.y)*side*dt*2,-Math.sin(e.root.rotation.y)*side*dt*2,.43);}
             if (e.think <= 0) {
                 e.think = .45 + e.id * .013;
-                const eye = p.clone().add(new T.Vector3(0, 1.55, 0)), sight = dist < 25 && this.visible(eye, camera.position);
+                const eye = p.clone().add(new T.Vector3(0, 1.55, 0)), sight = dist < (e.role==='狙击手'?40:25) && this.visible(eye, camera.position);
                 if (sight)
                     e.alert = 6;
                 else
                     e.alert = Math.max(0, e.alert - .5);
-                if (sight && dist < 15)
+                if (sight && dist < (e.role==='突击兵'?5:e.role==='狙击手'?38:e.role==='重机枪'?23:15))
                     e.state = 'ATTACK';
                 else if (e.alert > 0 || dist < 19) {
                     e.state = 'CHASE';
@@ -84,10 +85,10 @@ export class EnemyManager {
             if (e.state === 'ATTACK') {
                 e.root.rotation.y = Math.atan2(player.position.x - p.x, player.position.z - p.z);
                 if (e.attack <= 0) {
-                    e.attack = 1.12 + Math.random() * .65;
+                    e.attack = (e.role==='重机枪'?.35:e.role==='狙击手'?2.8:e.role==='精英'?.8:1.12)+Math.random()*.3;
                     this.audio.play('enemy');
                     if (this.visible(p.clone().add(new T.Vector3(0, 1.55, 0)), camera.position) && Math.random() < (player.moving ? .48 : .72))
-                        onDamage(6 + Math.min(6, this.wave));
+                        onDamage((e.role==='狙击手'?18:e.role==='重机枪'?4:6) + Math.min(6, this.wave));
                 }
             }
             else if (e.path.length) {
@@ -95,7 +96,7 @@ export class EnemyManager {
                 if (l < .25)
                     e.path.shift();
                 else {
-                    const speed = (e.state === 'CHASE' ? 2.5 : 1.65) * (e.slow > 0 ? .3 : 1);
+                    const speed = (e.state === 'CHASE' ? e.role==='突击兵'?4.2:e.role==='重机枪'?1.5:2.5 : 1.65) * (e.slow > 0 ? .3 : 1);
                     this.map.move(p, dx / l * speed * dt, dz / l * speed * dt, .43);
                     p.y = this.map.groundAt(p.x, p.z);
                     e.root.rotation.y = Math.atan2(dx, dz);

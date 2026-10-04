@@ -1,0 +1,55 @@
+{
+  "reports": [
+    {
+      "name": "chromium",
+      "summons": true,
+      "warning": true,
+      "slam": true,
+      "titanWarning": true,
+      "charge": true,
+      "dodge": true,
+      "lurking": true,
+      "ambush": true,
+      "buddyAttacked": true,
+      "bleedout": true,
+      "kinds": [
+        "spitter",
+        "bomber",
+        "pouncer",
+        "brute",
+        "runner",
+        "screamer",
+        "stalker",
+        "infected",
+        "titan"
+      ],
+      "poolSize": 48
+    },
+    {
+      "name": "webkit",
+      "summons": true,
+      "warning": true,
+      "slam": true,
+      "titanWarning": true,
+      "charge": true,
+      "dodge": true,
+      "lurking": true,
+      "ambush": true,
+      "buddyAttacked": true,
+      "bleedout": true,
+      "kinds": [
+        "spitter",
+        "bomber",
+        "pouncer",
+        "brute",
+        "runner",
+        "screamer",
+        "stalker",
+        "infected",
+        "titan"
+      ],
+      "poolSize": 48
+    }
+  ],
+  "errors": []
+}

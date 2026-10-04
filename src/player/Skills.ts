@@ -1,3 +1,4 @@
+import { SkillVisuals } from '../effects/SkillVisuals';
 import * as T from 'three';
 import { Player } from '../player/Player';
 import { InputManager } from '../core/InputManager';
@@ -13,10 +14,12 @@ type Zone = {
     age: number;
     radius: number;
     tick: number;
-    velocity: T.Vector3;
+    velocity: T.Vector3;anchor:T.Vector3;
     flying: boolean;
 };
 export class Skills {
+    say:(key:string,text:string)=>void=()=>{};
+    visuals:SkillVisuals;explosion:(p:T.Vector3)=>void=()=>{};
     operator = 'jiying';
     cooldowns = [0, 0, 0];
     overload = 0;
@@ -29,19 +32,19 @@ export class Skills {
     lastCrouch = false;
     ray = new T.Raycaster();
     readonly times: Record<string, number[]> = { jiying: [22, 14, 10], tiansun: [14, 18, 22], yuehen: [18, 22, 24], shouwang: [20, 25, 30] };
-    constructor(readonly scene: T.Scene, readonly player: Player, public enemies: EnemyManager, readonly map: SkywardMap, readonly audio: AudioManager, readonly hurt: (e: Enemy, d: number) => void, readonly notify: (s: string) => void, readonly burst: (p: T.Vector3, color: number) => void) { for (let i = 0; i < 10; i++) {
+    constructor(readonly scene: T.Scene, readonly player: Player, public enemies: EnemyManager, public map: SkywardMap, readonly audio: AudioManager, readonly hurt: (e: Enemy, d: number) => void, readonly notify: (s: string) => void, readonly burst: (p: T.Vector3, color: number) => void) { this.visuals=new SkillVisuals(scene);for (let i = 0; i < 10; i++) {
         const mesh = new T.Mesh(new T.RingGeometry(.88, 1, 32), new T.MeshBasicMaterial({ color: 0x8cdeff, transparent: true, opacity: .6, side: T.DoubleSide, depthWrite: false }));
         mesh.rotation.x = -Math.PI / 2;
         mesh.visible = false;
         scene.add(mesh);
-        this.zones.push({ mesh, active: false, type: 'scan', life: 0, age: 0, radius: 1, tick: 0, velocity: new T.Vector3(), flying: false });
+        this.zones.push({ mesh, active: false, type: 'scan', life: 0, age: 0, radius: 1, tick: 0, velocity: new T.Vector3(),anchor:new T.Vector3(), flying: false });
     } }
-    reset(id: string) { this.operator = id; this.cooldowns = [0, 0, 0]; this.overload = this.shield = this.armorTime = this.dashLeft = this.slideLeft = 0; this.player.armor = 0; this.player.speedBoost = 1; this.zones.forEach(z => { z.active = false; z.mesh.visible = false; }); }
+    reset(id: string) { this.visuals.reset();document.getElementById('hud')?.classList.remove('speed-rush'); this.operator = id; this.cooldowns = [0, 0, 0]; this.overload = this.shield = this.armorTime = this.dashLeft = this.slideLeft = 0; this.player.armor = 0; this.player.speedBoost = 1; this.zones.forEach(z => { z.active = false; z.mesh.visible = false; }); }
     cast(slot: number, input: InputManager, camera: T.PerspectiveCamera) {
         if (slot < 0 || slot > 2 || this.cooldowns[slot] > 0)
             return false;
         this.cooldowns[slot] = this.times[this.operator][slot];
-        this.audio.play('ui');
+        if(!((this.operator==='yuehen'&&slot<2)||(this.operator==='tiansun'&&slot===1)))this.say(this.operator,'技能启动');this.audio.play('ui');
         if (this.operator === 'jiying') {
             if (slot === 0) {
                 this.overload = 8;
@@ -100,13 +103,13 @@ export class Skills {
         this.overload = Math.min(12, this.overload + 1.5); }
     mark(e: Enemy) { if (this.operator === 'yuehen')
         e.reveal = 3; }
-    area(type: Zone['type'], p: T.Vector3, radius: number, life: number) { const z = this.zones.find(z => !z.active) || this.zones[0]; z.type = type; z.active = true; z.life = life; z.age = 0; z.tick = 0; z.radius = radius; z.flying = false; z.mesh.visible = true; z.mesh.position.copy(p); z.mesh.position.y = this.map.groundAt(p.x, p.z) + .08; z.mesh.scale.setScalar(radius); (z.mesh.material as T.MeshBasicMaterial).color.setHex(type === 'heal' ? 0x7bffc2 : type === 'arc' ? 0xc59aff : type === 'grenade' || type === 'sticky' ? 0xffa24f : 0x86eaff); return z; }
-    projectile(type: Zone['type'], camera: T.PerspectiveCamera) { const z = this.area(type, camera.position, .14, type === 'grenade' ? 2 : type === 'sticky' ? 2.7 : 9); z.mesh.position.copy(camera.position); z.flying = true; camera.getWorldDirection(z.velocity); z.velocity.multiplyScalar(type === 'scan' ? 24 : 17); this.notify(type === 'scan' ? '侦察箭已发射' : type === 'arc' ? '电弧箭已发射' : type === 'sticky' ? '吸附炸弹已投掷' : '微型榴弹已发射'); }
-    explode(z: Zone) { this.burst(z.mesh.position, 0xffad55); for (const e of this.enemies.active) {
+    area(type: Zone['type'], p: T.Vector3, radius: number, life: number) { const z = this.zones.find(z => !z.active) || this.zones[0]; z.type = type; z.active = true; z.life = life; z.age = 0; z.tick = 0; z.radius = radius; z.flying = false; z.mesh.visible = true; z.mesh.position.copy(p);z.anchor.copy(p); z.mesh.position.y = this.map.groundAt(p.x, p.z) + .08; z.mesh.scale.setScalar(radius); (z.mesh.material as T.MeshBasicMaterial).color.setHex(type === 'heal' ? 0x7bffc2 : type === 'arc' ? 0xc59aff : type === 'grenade' || type === 'sticky' ? 0xffa24f : 0x86eaff); return z; }
+    projectile(type: Zone['type'], camera: T.PerspectiveCamera) { if(['scan','arc','sticky'].includes(type))this.say(type,type==='scan'?'侦察箭发射':type==='arc'?'电击箭':'磁吸炸弹'); const z = this.area(type, camera.position, .14, type === 'grenade' ? 2 : type === 'sticky' ? 2.7 : 9); z.mesh.position.copy(camera.position);z.anchor.copy(camera.position); z.flying = true; camera.getWorldDirection(z.velocity); z.velocity.multiplyScalar(type === 'scan' ? 24 : 17); this.notify(type === 'scan' ? '侦察箭已发射' : type === 'arc' ? '电弧箭已发射' : type === 'sticky' ? '吸附炸弹已投掷' : '微型榴弹已发射'); }
+    explode(z: Zone) { this.explosion(z.mesh.position); this.burst(z.mesh.position, 0xffad55); for (const e of this.enemies.active) {
         const dist = e.root.position.distanceTo(z.mesh.position);
         if (dist < 6 && this.enemies.visible(z.mesh.position.clone().add(new T.Vector3(0, .25, 0)), e.root.position.clone().add(new T.Vector3(0, 1, 0))))
             this.hurt(e, 110 * (1 - dist / 8));
-    } this.area('shock', z.mesh.position.clone(), 6, .5); this.audio.play('sniper'); }
+    } this.area('shock', z.mesh.position.clone(), 6, .5); this.audio.creature('explode'); }
     damageScale() { return this.shield > 0 && this.zones.some(z => z.active && z.type === 'shield' && z.mesh.position.distanceTo(this.player.position) < 4) ? .45 : 1; }
     update(dt: number, input: InputManager, camera: T.PerspectiveCamera) {
         this.cooldowns = this.cooldowns.map(t => Math.max(0, t - dt));
@@ -145,7 +148,7 @@ export class Skills {
                 this.ray.set(z.mesh.position, movement.normalize());
                 this.ray.far = len;
                 const hit = this.ray.intersectObjects(this.map.solids, false)[0];
-                if (hit) {
+                if (hit) {z.anchor.copy(hit.point);
                     z.mesh.position.copy(hit.point).addScaledVector(hit.face?.normal || new T.Vector3(0, 1, 0), .09);
                     z.flying = false;
                     if (z.type === 'grenade') {
@@ -167,6 +170,7 @@ export class Skills {
                 if (z.mesh.position.y < this.map.groundAt(z.mesh.position.x, z.mesh.position.z) + .05) {
                     z.flying = false;
                     z.mesh.position.y = this.map.groundAt(z.mesh.position.x, z.mesh.position.z) + .08;
+                    z.anchor.copy(z.mesh.position);
                     if (z.type === 'arc' || z.type === 'scan') {
                         z.radius = z.type === 'scan' ? 13 : 4;
                         z.life = 6;
@@ -202,6 +206,7 @@ export class Skills {
                 z.mesh.visible = false;
             }
         }
+        this.visuals.update(this.zones);document.getElementById('hud')!.classList.toggle('speed-rush',this.dashLeft>0||this.slideLeft>0);
         document.querySelectorAll<HTMLElement>('.skill-action').forEach((b, i) => { const label = (this.cooldowns[i] > 0 ? Math.ceil(this.cooldowns[i]) : ['Q', 'E', 'X'][i]) + '<small>' + (['技能 1', '技能 2', '特殊'][i]) + '</small>'; if(b.innerHTML!==label)b.innerHTML=label; b.classList.toggle('cooling', this.cooldowns[i] > 0); });
         document.getElementById('skill-status')!.textContent = this.overload > 0 ? '超载 ' + this.overload.toFixed(1) + 's' : this.player.armor > 0 ? '护甲 ' + Math.ceil(this.player.armor) : this.shield > 0 ? '防护装置 ' + this.shield.toFixed(1) + 's' : 'Q / E / X · 技能就绪';
     }

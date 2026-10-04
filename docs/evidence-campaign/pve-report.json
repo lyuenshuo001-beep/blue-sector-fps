@@ -1,0 +1,78 @@
+{
+  "passed": [
+    "Mode > operator > M249 loadout > actual PVE deployment",
+    "Skinned GLB and local normal maps",
+    "Visible ballistic spit, damaging pools, moving away avoids acid",
+    "Sac weakpoint and chain explosions; pooled death animation",
+    "Pounce telegraph, leap, pin and five-tap escape",
+    "Objective route through ten campaign objectives and successful extraction",
+    "20-enemy LOW render budget",
+    "Mobile three-touch move/look/fire plus visible TAP escape button"
+  ],
+  "result": {
+    "skinned": 2,
+    "sawProjectile": true,
+    "acidDamage": 15,
+    "puddles": true,
+    "avoided": 0,
+    "weakHP": 25,
+    "chain": true,
+    "death": true,
+    "telegraph": true,
+    "leapt": true,
+    "airHitbox": true,
+    "pinned": true,
+    "escaped": true,
+    "routes": [
+      {
+        "blocked": false,
+        "path": 22
+      },
+      {
+        "blocked": false,
+        "path": 54
+      },
+      {
+        "blocked": false,
+        "path": 79
+      },
+      {
+        "blocked": false,
+        "path": 134
+      },
+      {
+        "blocked": false,
+        "path": 131
+      },
+      {
+        "blocked": false,
+        "path": 131
+      },
+      {
+        "blocked": false,
+        "path": 168
+      },
+      {
+        "blocked": false,
+        "path": 194
+      },
+      {
+        "blocked": false,
+        "path": 218
+      },
+      {
+        "blocked": false,
+        "path": 235
+      }
+    ],
+    "extracted": true,
+    "budget": {
+      "calls": 98,
+      "triangles": 61564,
+      "textures": 78,
+      "cap": 20,
+      "poolSize": 48
+    }
+  },
+  "errors": []
+}

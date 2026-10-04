@@ -1,0 +1,88 @@
+{
+  "results": [
+    {
+      "i": 0,
+      "blocked": false,
+      "path": 22,
+      "height": 0,
+      "stuck": false,
+      "distance": 0.20986874005634393
+    },
+    {
+      "i": 1,
+      "blocked": false,
+      "path": 34,
+      "height": 4,
+      "stuck": false,
+      "distance": 0.20578229245714397
+    },
+    {
+      "i": 2,
+      "blocked": false,
+      "path": 27,
+      "height": 4,
+      "stuck": false,
+      "distance": 0.1649079992501612
+    },
+    {
+      "i": 3,
+      "blocked": false,
+      "path": 57,
+      "height": -5,
+      "stuck": false,
+      "distance": 0.16608263702955595
+    },
+    {
+      "i": 4,
+      "blocked": false,
+      "path": 19,
+      "height": -5,
+      "stuck": false,
+      "distance": 0.205501593232839
+    },
+    {
+      "i": 5,
+      "blocked": false,
+      "path": 1,
+      "height": -5,
+      "stuck": false,
+      "distance": 0.205501593232839
+    },
+    {
+      "i": 6,
+      "blocked": false,
+      "path": 39,
+      "height": -5,
+      "stuck": false,
+      "distance": 0.23817645474493773
+    },
+    {
+      "i": 7,
+      "blocked": false,
+      "path": 28,
+      "height": -3,
+      "stuck": false,
+      "distance": 0.7217407931622696
+    },
+    {
+      "i": 8,
+      "blocked": false,
+      "path": 26,
+      "height": 0,
+      "stuck": false,
+      "distance": 1.1666419291431964
+    },
+    {
+      "i": 9,
+      "blocked": false,
+      "path": 1,
+      "height": 0,
+      "stuck": false,
+      "distance": 0.29892984109509996
+    }
+  ],
+  "walked": 528.42487728543,
+  "early": 0,
+  "complete": true,
+  "nav": 2520
+}

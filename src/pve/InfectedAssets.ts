@@ -1,8 +1,9 @@
 import * as T from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
-export type ZombieKind = 'infected' | 'spitter' | 'bomber' | 'pouncer';
-export const ZOMBIE_NAMES: Record<ZombieKind, string> = { infected: '感染者', spitter: '腐液者', bomber: '爆裂者', pouncer: '扑袭者' };
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+export type ZombieKind = 'infected' | 'spitter' | 'bomber' | 'pouncer' | 'brute' | 'runner' | 'screamer' | 'stalker' | 'titan';
+export const ZOMBIE_NAMES: Record<ZombieKind, string> = { infected: '感染者', spitter: '腐液者', bomber: '爆裂者', pouncer: '扑袭者', brute:'重型感染者',runner:'疾行者',screamer:'尖啸者',stalker:'潜伏者',titan:'TITAN 巨型感染者' };
 const assets = new Map<string, {
     scene: T.Group;
     animations: T.AnimationClip[];
@@ -14,7 +15,7 @@ export async function loadInfected(progress: (n: number) => void) {
     maps.forEach(t => { t.flipY = false; t.wrapS = t.wrapT = T.RepeatWrapping; });
     let done = 0;
     // Limit parallel parsing on mobile; glTF geometry, textures and clips remain shared across the pool.
-    for (const kind of ['infected', 'spitter', 'bomber', 'pouncer'])
+    for (const kind of ['infected','civilian','worker','spitter','bomber','pouncer','brute','runner','screamer','stalker','titan'])
         for (const suffix of ['', '-low']) {
             const g = await loader.loadAsync(base + kind + suffix + '.glb');
             g.scene.traverse(o => { if (o instanceof T.Mesh) {
@@ -28,9 +29,19 @@ export async function loadInfected(progress: (n: number) => void) {
                 o.castShadow = false;
                 o.frustumCulled = false;
             } });
+            // Distant actors keep their skinned silhouette and vertex colors in one
+            // draw call. Normal/PBR detail remains on close models where it is visible.
+            if(suffix){
+                const pieces:T.SkinnedMesh[]=[];
+                g.scene.traverse(o=>{if(o instanceof T.SkinnedMesh)pieces.push(o);});
+                if(pieces.length){
+                    const geometry=mergeGeometries(pieces.map(m=>m.geometry));
+                    if(geometry){const mesh=new T.SkinnedMesh(geometry,new T.MeshLambertMaterial({vertexColors:true,map:maps[0]}));mesh.name='DistantInfected';mesh.bind(pieces[0].skeleton,pieces[0].bindMatrix);mesh.frustumCulled=false;pieces.forEach(m=>m.removeFromParent());g.scene.add(mesh);}
+                }
+            }
             assets.set(kind + suffix, { scene: g.scene, animations: g.animations });
-            progress(++done / 8);
+            progress(++done / 22);
         }
 }
-export function infectedModel(kind: ZombieKind, low = false) { const a = assets.get(kind + (low ? '-low' : '')); if (!a)
+export function infectedModel(kind: string, low = false) { const a = assets.get(kind + (low ? '-low' : '')); if (!a)
     throw Error('Infected assets not loaded'); const model = clone(a.scene) as T.Group, mixer = new T.AnimationMixer(model); mixer.clipAction(a.animations[0]).play(); return { model, mixer }; }

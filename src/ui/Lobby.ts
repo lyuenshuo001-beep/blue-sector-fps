@@ -6,6 +6,7 @@ import { weaponModel, disposeWeapon } from '../weapons/WeaponModel';
 import { soldierModel } from '../enemy/SoldierModel';
 export class Lobby {
     mode: 'survival' | 'last-sector' = 'last-sector';
+    buddy='shouwang';
     tab = 'home';
     selected = 'M4A1';
     deploying = false;
@@ -35,7 +36,7 @@ export class Lobby {
         this.previewScene.add(light);
         this.previewScene.environment = renderer.scene.environment;
         this.previewScene.environmentIntensity = 1;
-        this.selected = profile.data.primary;
+        try{const b=localStorage.getItem('twinkle-buddy');if(OPERATORS.some(o=>o.id===b))this.buddy=b!;}catch{}this.selected = profile.data.primary;
         this.show('home');
     }
     openDeploy() { this.deploying = true; this.show('modes'); }
@@ -49,7 +50,7 @@ export class Lobby {
         const container = document.getElementById('lobby-content')!;
         const op = OPERATORS.find(o => o.id === d.operator)!;
         if (tab === 'modes') {
-            container.innerHTML = '<div class="mode-select"><p class="eyebrow">MODE SELECT / 选择行动</p><button class="mode-card" data-mode="last-sector"><small>CO-OP STYLE / SOLO PVE</small><h2>绝境行动</h2><b>LAST SECTOR</b><p>隔离前哨 · 四类感染体 · 目标推进 · 尸潮撤离</p><span>进入首发可玩战区 ↗</span></button><button class="mode-card" data-mode="survival"><small>CLASSIC</small><h2>悬空城生存</h2><b>SKYWARD SURVIVAL</b><p>保留原版「路一号」枪战与无尽波次</p><span>继续经典模式 ↗</span></button></div>';
+            container.innerHTML = '<div class="mode-select"><p class="eyebrow">MODE SELECT / 选择行动</p><button class="mode-card" data-mode="last-sector"><small>CO-OP STYLE / SOLO PVE</small><h2>绝境行动</h2><b>LAST SECTOR</b><p>线性战役 · AI 队友 · 特殊感染体 · TITAN · 撤离</p><span>进入隔离区战役 ↗</span></button><button class="mode-card" data-mode="survival"><small>CLASSIC</small><h2>悬空城生存</h2><b>SKYWARD SURVIVAL</b><p>保留原版「路一号」枪战与无尽波次</p><span>继续经典模式 ↗</span></button></div>';
             container.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => b.onclick = () => { this.mode = b.dataset.mode as 'survival' | 'last-sector'; this.show('operators'); });
             this.clearPreview();
         }
@@ -58,8 +59,9 @@ export class Lobby {
             this.setOperatorPreview(op.color);
         }
         else if (tab === 'operators') {
-            container.innerHTML = `<aside class="lobby-left"><p class="eyebrow">${this.deploying ? '01 / SELECT OPERATOR' : 'OPERATORS'}</p>${OPERATORS.map(o => `<button class="selection-card ${o.id === d.operator ? 'chosen' : ''}" data-op="${o.id}"><b>${o.name}</b><small>${o.role}</small></button>`).join('')}</aside><aside class="lobby-right"><small>OPERATOR DOSSIER</small><h2>${op.name}</h2><p>${op.role}</p>${op.skills.map((s, i) => `<div class="skill-card"><b>${['Q', 'E', 'X'][i]}</b><span>${s}</span></div>`).join('')}<button id="operator-equip" class="primary">${this.deploying ? '下一步：配装 →' : 'EQUIPPED / 已装备'}</button></aside>`;
+            container.innerHTML = `<aside class="lobby-left"><p class="eyebrow">${this.deploying ? '01 / SELECT OPERATOR' : 'OPERATORS'}</p>${OPERATORS.map(o => `<button class="selection-card ${o.id === d.operator ? 'chosen' : ''}" data-op="${o.id}"><b>${o.name}</b><small>${o.role}</small></button>`).join('')}</aside><aside class="lobby-right"><small>OPERATOR DOSSIER</small><h2>${op.name}</h2><p>${op.role}</p>${op.skills.map((s, i) => `<div class="skill-card"><b>${['Q', 'E', 'X'][i]}</b><span>${s}</span></div>`).join('')}${this.mode==='last-sector'?`<label>AI 队友<select id="buddy-select">${OPERATORS.map(o=>`<option value="${o.id}" ${this.buddy===o.id?'selected':''}>${o.name}</option>`).join('')}</select></label>`:''}<button id="operator-equip" class="primary">${this.deploying ? '下一步：配装 →' : 'EQUIPPED / 已装备'}</button></aside>`;
             container.querySelectorAll<HTMLButtonElement>('[data-op]').forEach(b => b.onclick = () => { d.operator = b.dataset.op!; this.profile.save(); this.show('operators'); });
+            const buddySelect=document.getElementById('buddy-select') as HTMLSelectElement|null;if(buddySelect)buddySelect.onchange=()=>{this.buddy=buddySelect.value;try{localStorage.setItem('twinkle-buddy',this.buddy);}catch{}};
             document.getElementById('operator-equip')!.onclick = () => {
                 if (this.deploying)
                     this.show('loadout');

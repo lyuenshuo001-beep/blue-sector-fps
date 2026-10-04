@@ -10,7 +10,7 @@ export class Pickups {
         timer: number;
     }[] = [];
     elapsed = 0;
-    constructor(scene: T.Scene, readonly map: BlueRoomMap) {
+    constructor(scene: T.Scene, public map: BlueRoomMap) {
         for (let i = 0; i < 8; i++) {
             const type = i % 2 ? 'ammo' : 'health', mesh = new T.Group(), color = type === 'health' ? 0x77ffd1 : 0xffc277;
             const base = new T.Mesh(new T.BoxGeometry(.6, .36, .5), new T.MeshStandardMaterial({ color: 0x223b47 }));
@@ -31,7 +31,7 @@ export class Pickups {
         }
         this.reset();
     }
-    reset() { this.elapsed = 0; this.items.forEach((item, i) => { item.active = true; item.timer = 0; const spots = [[-8, 20], [8, 20], [-18, 9], [18, 9], [-8, -12], [8, -12], [-18, -27], [18, -27]]; let x=spots[i][0],z=spots[i][1];if(this.map.blocked(x,z,.7)){const n=this.map.nav[(i*89)%this.map.nav.length];x=n.x;z=n.z;}item.mesh.position.set(x,this.map.groundAt(x,z)+.6,z); item.mesh.visible = true; }); }
+    reset() { this.elapsed = 0; this.items.forEach((item, i) => { item.active = true; item.timer = 0; const spots = [[-8, 20], [8, 20], [-18, 9], [18, 9], [-8, -12], [8, -12], [-18, -27], [18, -27]]; let x=spots[i][0],z=spots[i][1];if(this.map.nav.length>2000){x=i%2?-10:10;z=20-i*39;}if(this.map.blocked(x,z,.7)){const n=this.map.nav[(i*89)%this.map.nav.length];x=n.x;z=n.z;}item.mesh.position.set(x,this.map.groundAt(x,z)+.6,z); item.mesh.visible = true; }); }
     update(dt: number, player: Player, weapons: WeaponManager, notify: (s: string) => void) {
         this.elapsed += dt;
         for (const item of this.items) {

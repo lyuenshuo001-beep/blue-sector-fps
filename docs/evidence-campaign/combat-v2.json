@@ -1,0 +1,24 @@
+{
+  "passed": [
+    "Head/body hitscan and wall occlusion",
+    "Grenade impact AOE, delayed sticky detonation, arc damage",
+    "Ramp elevation and cliff collision",
+    "LOW draw-call and triangle budgets with 8 enemies"
+  ],
+  "result": {
+    "head": true,
+    "body": true,
+    "wall": true,
+    "grenade": true,
+    "delayed": true,
+    "sticky": true,
+    "arc": true,
+    "ramp": true,
+    "cliff": true,
+    "budget": {
+      "calls": 137,
+      "triangles": 32814,
+      "textures": 35
+    }
+  }
+}

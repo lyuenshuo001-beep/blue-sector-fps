@@ -82,13 +82,13 @@ export class WeaponManager {
                 w.ammo--;
                 this.shots++;
                 this.cooldown = 1 / w.spec.fireRate;
-                shoot(w.spec.spread * (input.ads ? w.spec.adsAccuracy : w.spec.hipAccuracy) * (1 + this.bloom * 2 + (player.moving ? 1 : 0)));
+                shoot((input.crouch?.72:1)*w.spec.spread * (input.ads ? w.spec.adsAccuracy : w.spec.hipAccuracy) * (1 + this.bloom * 2 + player.moveIntensity*(player.sprinting?1.6:1)));
                 this.bloom = Math.min(1.5, this.bloom + .18);
                 player.yaw += (Math.random() - .5) * w.spec.horizontal;
                 player.recoil += w.spec.recoil * (1 + this.bloom * .4);
                 this.kick = .07;
                 this.flashLeft = w.attachments.muzzle === 'suppressor' ? .015 : .045;
-                this.audio.play(w.spec.category === 'SNIPER' ? 'sniper' : 'shot', w.attachments.muzzle === 'suppressor' ? .35 : 1);
+                this.audio.gunshot(w.spec.id,w.spec.category,w.attachments.muzzle==='suppressor');
             }
             else
                 this.reload();
